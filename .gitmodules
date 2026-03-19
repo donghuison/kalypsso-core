@@ -13,3 +13,6 @@
 [submodule "spdlog"]
 	path = external/spdlog
 	url = git@github.com:gabime/spdlog.git
+[submodule "p4est"]
+	path = external/p4est
+	url = git@github.com:cburstedde/p4est.git
