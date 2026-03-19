@@ -10,3 +10,6 @@
 [submodule "cpptrace"]
 	path = external/cpptrace
 	url = git@github.com:jeremy-rifkin/cpptrace.git
+[submodule "spdlog"]
+	path = external/spdlog
+	url = git@github.com:gabime/spdlog.git
