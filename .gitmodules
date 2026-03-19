@@ -7,3 +7,6 @@
 [submodule "HighFive"]
 	path = external/HighFive
 	url = git@github.com:highfive-devs/highfive.git
+[submodule "cpptrace"]
+	path = external/cpptrace
+	url = git@github.com:jeremy-rifkin/cpptrace.git
