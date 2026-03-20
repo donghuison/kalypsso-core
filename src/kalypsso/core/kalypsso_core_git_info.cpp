@@ -20,7 +20,7 @@ GitRevisionInfo::version()
 bool
 GitRevisionInfo::has_git_info()
 {
-#ifdef KALYPSSO_HAS_GIT_INFO
+#ifdef KALYPSSO_CORE_HAS_GIT_INFO
   return true;
 #else
   return false;
@@ -30,8 +30,8 @@ GitRevisionInfo::has_git_info()
 std::string
 GitRevisionInfo::git_tag()
 {
-#ifdef KALYPSSO_HAS_GIT_INFO
-  return KALYPSSO_GIT_TAG;
+#ifdef KALYPSSO_CORE_HAS_GIT_INFO
+  return KALYPSSO_CORE_GIT_TAG;
 #else
   return "unknown tag";
 #endif
@@ -40,8 +40,8 @@ GitRevisionInfo::git_tag()
 std::string
 GitRevisionInfo::git_head()
 {
-#ifdef KALYPSSO_HAS_GIT_INFO
-  return KALYPSSO_GIT_HEAD;
+#ifdef KALYPSSO_CORE_HAS_GIT_INFO
+  return KALYPSSO_CORE_GIT_HEAD;
 #else
   return "unknown head";
 #endif
@@ -50,8 +50,8 @@ GitRevisionInfo::git_head()
 std::string
 GitRevisionInfo::git_hash()
 {
-#ifdef KALYPSSO_HAS_GIT_INFO
-  return KALYPSSO_GIT_HASH;
+#ifdef KALYPSSO_CORE_HAS_GIT_INFO
+  return KALYPSSO_CORE_GIT_HASH;
 #else
   return "unknown hash";
 #endif
@@ -60,8 +60,8 @@ GitRevisionInfo::git_hash()
 std::string
 GitRevisionInfo::git_remote_url()
 {
-#ifdef KALYPSSO_HAS_GIT_INFO
-  return KALYPSSO_GIT_REMOTE_URL;
+#ifdef KALYPSSO_CORE_HAS_GIT_INFO
+  return KALYPSSO_CORE_GIT_REMOTE_URL;
 #else
   return "unknown remote url";
 #endif
@@ -70,8 +70,8 @@ GitRevisionInfo::git_remote_url()
 std::string
 GitRevisionInfo::git_branch()
 {
-#ifdef KALYPSSO_HAS_GIT_INFO
-  return KALYPSSO_GIT_BRANCH;
+#ifdef KALYPSSO_CORE_HAS_GIT_INFO
+  return KALYPSSO_CORE_GIT_BRANCH;
 #else
   return "unknown git branch";
 #endif
@@ -80,8 +80,8 @@ GitRevisionInfo::git_branch()
 bool
 GitRevisionInfo::git_is_clean()
 {
-#ifdef KALYPSSO_HAS_GIT_INFO
-  return KALYPSSO_GIT_IS_CLEAN;
+#ifdef KALYPSSO_CORE_HAS_GIT_INFO
+  return KALYPSSO_CORE_GIT_IS_CLEAN;
 #else
   return false;
 #endif
@@ -92,7 +92,7 @@ GitRevisionInfo::print()
 {
   if (has_git_info())
   {
-    std::cout << "#############################################\n";
+    std::cout << "###############################################\n";
     std::cout << "kalypsso_core - git information" << "\n";
     std::cout << "git remote url : " << git_remote_url() << "\n";
     std::cout << "git branch     : " << git_branch() << "\n";
@@ -107,14 +107,14 @@ GitRevisionInfo::print()
       std::cout << "dirty";
     }
     std::cout << ")\n";
-    std::cout << "#############################################\n";
+    std::cout << "###############################################\n";
   }
   else
   {
-    std::cout << "#############################################\n";
-    std::cout << "kalypsso - not built from a git repository      \n";
+    std::cout << "###############################################\n";
+    std::cout << "kalypsso_core - not built from a git repository\n";
     std::cout << "version       : " << version() << "\n";
-    std::cout << "#############################################\n";
+    std::cout << "###############################################\n";
   }
 
 } // GitRevisionInfo::print
