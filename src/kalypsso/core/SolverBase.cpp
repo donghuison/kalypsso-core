@@ -36,7 +36,7 @@ SolverBase::SolverBase(ParallelEnv const & par_env,
   , m_restart_run_enabled(false)
   , m_restart_run_filename("")
   , m_amr_cycle_counter(0)
-
+  , m_amr_cycle_activated(true)
 {
 
   /*
@@ -201,6 +201,9 @@ SolverBase::finished()
 bool
 SolverBase::should_do_amr_cycle()
 {
+
+  if (!m_amr_cycle_activated)
+    return false;
 
   // default behavior : once every amr_cycle_frequency time steps
   const bool do_amr_cycle = m_params.amr_cycle_enabled and m_amr_cycle_frequency > 0 and
