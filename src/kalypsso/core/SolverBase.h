@@ -82,6 +82,11 @@ protected:
   //! number of AMR cycle done
   int m_amr_cycle_counter;
 
+  //! boolean indicating if AMR cycle is activated
+  //! default value: true
+  //! useful to froze AMR mesh when set to false
+  bool m_amr_cycle_activated;
+
   /**
    * specify how often load balancing must be done.
    * Load balancing is performed once every amr_load_balancing_frequency
@@ -188,6 +193,20 @@ public:
   //! perform AMR cycle (mark cells, adapt = refine/coarsen, remap user data)
   virtual void
   do_amr_cycle();
+
+  //! activate AMR cycle
+  void
+  activate_amr_cycle()
+  {
+    m_amr_cycle_activated = true;
+  }
+
+  //! deactivate AMR cycle
+  void
+  deactivate_amr_cycle()
+  {
+    m_amr_cycle_activated = false;
+  }
 
   //! do MPI load balancing
   virtual void
