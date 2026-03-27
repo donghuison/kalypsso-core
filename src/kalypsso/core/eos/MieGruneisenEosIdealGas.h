@@ -78,7 +78,7 @@ struct MieGruneisenEosIdealGasParam
 struct MieGruneisenEosIdealGas
 {
   //! Ideal gas Mie-Gruneisen parameters
-  const MieGruneisenEosSWParam m_params;
+  const MieGruneisenEosIdealGasParam m_params;
 
   KOKKOS_DEFAULTED_FUNCTION
   MieGruneisenEosIdealGas() = default;

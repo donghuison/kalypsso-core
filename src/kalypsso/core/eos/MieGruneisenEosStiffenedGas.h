@@ -82,7 +82,7 @@ struct MieGruneisenEosStiffenedGasParam
 struct MieGruneisenEosStiffenedGas
 {
   //! Stiffened gas Mie-Gruneisen parameters
-  const MieGruneisenEosSWParam m_params;
+  const MieGruneisenEosStiffenedGasParam m_params;
 
   KOKKOS_DEFAULTED_FUNCTION
   MieGruneisenEosStiffenedGas() = default;
