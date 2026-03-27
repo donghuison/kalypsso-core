@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 /**
- * \file MieGruneisenEos.h
+ * \file MieGruneisenEosSW.h
  *
  * Mie-Gruneisen equation of state is a general EOS written as:
  *
@@ -18,7 +18,7 @@
  * - A method for compressible multimaterial flows with condensed phase explosive detonation and
  * airblast on unstructured grids, M.A. Price et al, Computers & Fluids, Volume 111, 2015, Pages
  * 76-90. https://doi.org/10.1016/j.compfluid.2015.01.006
- *  - High-order methods for diffuse-interface models in compressible multi-medium flows: A review,
+ * - High-order methods for diffuse-interface models in compressible multi-medium flows: A review,
  * V. Maltsev et al, Physics of Fluids 1 February 2022; 34 (2): 021301.
  * https://doi.org/10.1063/5.0077314
  *
@@ -43,7 +43,12 @@ namespace core
 namespace eos
 {
 
-struct MieGruneisenShockWaveParam
+/**
+ * \struct MieGruneisenEosSWParam
+ *
+ * Define all configurable parameters used in Mie-Gruneisen EOS of type shockwave (SW).
+ */
+struct MieGruneisenEosSWParam
 {
   //! reference density
   real_t rho0;
@@ -77,7 +82,7 @@ struct MieGruneisenShockWaveParam
   {
     const auto material_id = "material" + std::to_string(i_mat) + "_mie_gruneisen";
 
-    MieGruneisenShockWaveParam params;
+    MieGruneisenEosSWParam params;
 
     params.rho0 = config_map.getReal(material_id, "rho0", KALYPSSO_NUM(1.0));
     params.Gamma0 = config_map.getReal(material_id, "Gamma0", KALYPSSO_NUM(1.0));
@@ -92,26 +97,23 @@ struct MieGruneisenShockWaveParam
     return params;
   } // get_parameters
 
-}; // struct MieGruneisenShockWaveParam
+}; // struct MieGruneisenEosSWParam
 
 // ==============================================================================
 // ==============================================================================
 // ==============================================================================
-// ==========================================================================
-// ==========================================================================
 /**
- * Mie-Gruneisen equation of state (shockwave)
+ * Mie-Gruneisen equation of state (shockwave).
  *
  * This struct is a helper for converting internal energy to pressure and reverse.
- *
  */
-struct MieGruneisenEos
+struct MieGruneisenEosSW
 {
   //! Shockwave Mie-Gruneisen parameters
-  const MieGruneisenShockWaveParam m_params;
+  const MieGruneisenEosSWParam m_params;
 
   KOKKOS_DEFAULTED_FUNCTION
-  MieGruneisenEos() = default;
+  MieGruneisenEosSW() = default;
 
   /**
    * Initialize Eos for a given material by reading property from ini file.
@@ -119,20 +121,117 @@ struct MieGruneisenEos
    * \param[in] i_mat material id (between 0 and nmat-1)
    * \param[in] config_map input configuration map
    */
-  MieGruneisenEos(const size_t i_mat, const ConfigMap & config_map)
-    : m_params(MieGruneisenShockWaveParam::get_parameters(i_mat, config_map))
+  MieGruneisenEosSW(const size_t i_mat, const ConfigMap & config_map)
+    : m_params(MieGruneisenEosSWParam::get_parameters(i_mat, config_map))
   {}
 
   /**
    * Initialize Mie-Gruneisen Eos.
    *
-   * Useful for monofluid (only one material).
-   *
    * \param[in] config_map input configuration map
    */
-  MieGruneisenEos(const ConfigMap & config_map)
-    : MieGruneisenEos(0, config_map)
+  MieGruneisenEosSW(const ConfigMap & config_map)
+    : MieGruneisenEosSW(0, config_map)
   {}
+
+  /**
+   * Compute Gruneisen parameter.
+   *
+   * Useful and needed for mixture computations.
+   *
+   * \note \f$ e_v = 1-\frac{\rho_0}{\rho} = \frac{U_p}{U_s} \f$ relates particule velocity
+   * to shock velocity.
+   *
+   * \return Gruneisen parameter.
+   */
+  KOKKOS_INLINE_FUNCTION real_t
+  gamma(const real_t rho) const
+  {
+    const auto ev = 1 - m_params.rho0 / rho;
+
+    return m_params.Gamma0 * (1 - ev) + m_params.b * ev;
+  }
+
+  /**
+   * Compute Gruneisen parameter.
+   *
+   * Mostly for internal use.
+   *
+   * \return Gruneisen parameter.
+   */
+  KOKKOS_INLINE_FUNCTION real_t
+  gamma_from_ev(const real_t ev) const
+  {
+    return m_params.Gamma0 * (1 - ev) + m_params.b * ev;
+  }
+
+  /**
+   * Compute parameter "s" (Hugoniot slope)
+   */
+  KOKKOS_INLINE_FUNCTION real_t
+  hugoniot_slope(const real_t ev)
+  {
+    return m_params.s1 + m_params.s2 * ev + m_params.s3 * ev * ev;
+  }
+
+  /**
+   * Compute derivative of parameter "s" (Hugoniot slope)
+   */
+  KOKKOS_INLINE_FUNCTION real_t
+  hugoniot_slope_derivative(const real_t ev)
+  {
+    return m_params.s1 + 2 * m_params.s2 * ev + 3 * m_params.s3 * ev * ev;
+  }
+
+  /**
+   * Compute reference pressure.
+   */
+  KOKKOS_INLINE_FUNCTION real_t
+  pressure_ref(const real_t rho) const
+  {
+    const auto ev = 1 - m_params.rho0 / rho;
+
+    if (ev > 0) // COMPRESSION
+    {
+      const auto s = hugoniot_slope(ev);
+      const auto d = 1 - s * ev;
+      return m_params.rho0 * m_params.c02 * ev / (d * d);
+    }
+    else // RELEASE
+    {
+      return m_params.rho0 * m_params.c02 * ev / (1 - ev);
+    }
+
+    return ZERO_F;
+
+  } // pressure_ref
+
+  /**
+   * Compute reference internal energy.
+   */
+  KOKKOS_INLINE_FUNCTION real_t
+  eint_ref(const real_t rho) const
+  {
+    const auto ev = 1 - m_params.rho0 / rho;
+
+    if (ev > 0) // COMPRESSION
+    {
+      const auto s = hugoniot_slope(ev);
+      const auto d = 1 - s * ev;
+
+      // reference pressure on Hugoniot
+      const auto phi = m_params.rho0 * m_params.c02 * ev / (d * d);
+
+      return m_params.e0 + phi * ev / (2 * m_params.rho0);
+    }
+    else // RELEASE
+    {
+      return m_params.e0;
+    }
+
+    return ZERO_F;
+
+  } // eint_ref
 
   /**
    * Compute pressure from volumic internal energy
@@ -153,30 +252,25 @@ struct MieGruneisenEos
     if (rho > 0)
     {
       const auto ev = 1 - m_params.rho0 / rho;
-
-      const auto Gamma = m_params.Gamma0 * (1 - ev) + m_params.b * ev;
+      const auto Gamma = gamma_from_ev(ev);
       const auto dpde = Gamma * rho;
 
-      if (ev > 0)
+      if (ev > 0) // COMPRESSION
       {
-        // COMPRESSION
-
-        const auto d =
-          KALYPSSO_NUM(1.0) - (m_params.s1 + m_params.s2 * ev + m_params.s3 * ev * ev) * ev;
+        const auto s = hugoniot_slope(ev);
+        const auto d = 1 - s * ev;
 
         // reference pressure on Hugoniot
         const auto phi = m_params.rho0 * m_params.c02 * ev / (d * d);
 
         // reference internal energy
-        const auto eh = m_params.e0 + phi * ev / (2. * m_params.rho0);
+        const auto eh = m_params.e0 + phi * ev / (2 * m_params.rho0);
 
         // return pressure
         return phi + dpde * (eint_specific - eh);
       }
-      else
+      else // RELEASE
       {
-        // RELEASE
-
         const auto phi = m_params.rho0 * m_params.c02 * ev / (1 - ev);
         const auto eh = m_params.e0;
 
@@ -210,28 +304,24 @@ struct MieGruneisenEos
     if (rho > 0)
     {
       const auto ev = 1 - m_params.rho0 / rho;
+      const auto Gamma = gamma_from_ev(ev);
+      const auto dpde = Gamma * rho;
 
-      const auto gam = m_params.Gamma0 * (1 - ev) + m_params.b * ev;
-      const auto dpde = gam * rho;
-
-      if (ev > 0)
+      if (ev > 0) // COMPRESSION
       {
-        // COMPRESSION
-
-        const auto d = 1 - (m_params.s1 + m_params.s2 * ev + m_params.s3 * ev * ev) * ev;
+        const auto s = hugoniot_slope(ev);
+        const auto d = 1 - s * ev;
 
         // reference pressure on Hugoniot
         const auto phi = m_params.rho0 * m_params.c02 * ev / (d * d);
 
         // reference internal energy
-        const auto eh = m_params.e0 + phi * ev / (2. * m_params.rho0);
+        const auto eh = m_params.e0 + phi * ev / (2 * m_params.rho0);
 
         eint_specific = eh + (pressure - phi) / dpde;
       }
-      else
+      else // RELEASE
       {
-        // RELEASE
-
         const auto phi = m_params.rho0 * m_params.c02 * ev / (1 - ev);
         const auto eh = m_params.e0;
 
@@ -263,36 +353,31 @@ struct MieGruneisenEos
       const auto dpde = gam * rho;
       const auto dgam = m_params.rho0 * (m_params.Gamma0 - m_params.b);
 
-      if (ev > 0)
+      if (ev > 0) // COMPRESSION
       {
-        // COMPRESSION
-
-        const auto d = 1 - (m_params.s1 + m_params.s2 * ev + m_params.s3 * ev * ev) * ev;
+        const auto s = hugoniot_slope(ev);
+        const auto d = 1 - s * ev;
         const auto phi = m_params.rho0 * m_params.c02 * ev / (d * d);
-        const auto eh = m_params.e0 + phi * ev / (2. * m_params.rho0);
+        const auto eh = m_params.e0 + phi * ev / (2 * m_params.rho0);
 
         const auto eint_specific = eh + (pressure - phi) / dpde;
-        // const auto eint_specific = specific_eint_from_pressure(pressure, rho);
+        const auto s_der = hugoniot_slope_derivative(ev);
 
-        const auto dphi = phi * m_params.rho0 *
-                          (-1 / (ev + Kokkos::Experimental::norm_min_v<real_t>)-2. *
-                           (m_params.s1 + 2 * m_params.s2 * ev + 3 * m_params.s3 * ev * ev) / d);
-        const auto deh =
-          phi * (-1 - ev * (m_params.s1 + 2. * m_params.s2 * ev + 3. * m_params.s3 * ev * ev) / d);
+        constexpr auto min_real = Kokkos::Experimental::norm_min_v<real_t>;
+
+        const auto dphi = phi * m_params.rho0 * (-1 / (ev + min_real) - 2 * s_der / d);
+        const auto deh = phi * (-1 - ev * s_der / d);
         const auto dpdv = dphi + (dgam - gam * rho) * (eint_specific - eh) * rho - gam * rho * deh;
 
         // return sound speed
         c2 = (pressure * dpde - dpdv) / (rho * rho);
       }
-      else
+      else // RELEASE
       {
-        // RELEASE
-
         const auto phi = m_params.rho0 * m_params.c02 * ev / (1 - ev);
         const auto eh = m_params.e0;
 
         const auto eint_specific = eh + (pressure - phi) / dpde;
-        // const auto eint_specific = specific_eint_from_pressure(pressure, rho);
 
         const auto dphi = -m_params.c02 * rho * rho;
         const auto dpdv = dphi + (dgam - dpde) * (eint_specific - eh) * rho;
@@ -316,25 +401,22 @@ struct MieGruneisenEos
     const auto ev = 1 - m_params.rho0 * v / rho;
     const auto Gamma = m_params.Gamma0 * (1 - ev) + m_params.b * ev;
 
-    if (ev > 0)
+    if (ev > 0) // COMPRESSION
     {
-      // COMPRESSION
-      const auto s = m_params.s1 * ev + m_params.s2 * ev * ev + m_params.s3 * ev * ev * ev;
-      const auto ds = m_params.s1 + 2 * m_params.s2 * ev + 3 * m_params.s3 * ev * ev;
+      const auto s = hugoniot_slope(ev) * ev;
+      const auto ds = hugoniot_slope_derivative(ev);
       const auto dev = m_params.rho0 / (rho * rho);
       const auto dGamma = (m_params.b - m_params.Gamma0) * dev;
-      // const auto P_H = m_params.p0 + m_params.c02 * m_params.rho0 * ev / ((1 - s) * (1 - s));
       const auto phi = m_params.rho0 * m_params.c02 * ev / (1 - ev);
       const auto dphi =
         m_params.c02 * m_params.rho0 / ((1 - s) * (1 - s)) * dev * (1 + 2 * ev * ds / (1 - s));
-      const auto eh = m_params.e0 + phi * ev / (2. * m_params.rho0);
+      const auto eh = m_params.e0 + phi * ev / (2 * m_params.rho0);
       const auto deh = dev * phi / m_params.rho0 / 2 + ev / m_params.rho0 / 2 * dphi;
       return dphi + Gamma * (eint_specific - eh) + rho * dGamma * (eint_specific - eh) -
              rho * Gamma * deh;
     }
-    else
+    else // RELEASE
     {
-      // RELEASE
       return m_params.c02 + Gamma * eint_specific;
     }
 
@@ -343,6 +425,8 @@ struct MieGruneisenEos
   } // dP_drho_e
 
   /**
+   * Compute isentropic bulk modulus.
+   *
    * By definition isentropic bulk modulus is \f$\kappa = \rho \frac{dP}{d\rho}|_S\f$,
    * where the derivative is taken at constant entropy.
    */
@@ -355,18 +439,16 @@ struct MieGruneisenEos
     const auto ev = 1 - m_params.rho0 / rho;
     const auto Gamma = m_params.Gamma0 * (1 - ev) + m_params.b * ev;
 
-    if (ev > 0)
+    if (ev > 0) // COMPRESSION
     {
-      // COMPRESSION
       const auto dPdr_e = dP_drho_e(eint_specific, rho);
       const auto dPde_r = rho * Gamma;
 
       // thermodynamic identity
       return rho * dPdr_e + pressure / rho * dPde_r;
     }
-    else
+    else // RELEASE
     {
-      // RELEASE
       return rho * m_params.c02 + m_params.Gamma0 * (rho * eint_specific + pressure);
     }
 
@@ -374,7 +456,7 @@ struct MieGruneisenEos
 
   } // bulk_modulus
 
-}; // struct MieGruneisenEos
+}; // struct MieGruneisenEosSW
 
 } // namespace eos
 
