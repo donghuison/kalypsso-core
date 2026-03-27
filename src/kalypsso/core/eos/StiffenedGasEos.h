@@ -113,7 +113,7 @@ struct StiffenedGasEos
   }
 
   /**
-   * Compute pressure from volumic internal energy
+   * Compute pressure from volumic internal energy.
    */
   KOKKOS_INLINE_FUNCTION real_t
   pressure_from_volumic_eint(real_t volumic_eint, [[maybe_unused]] real_t rho) const
@@ -122,7 +122,7 @@ struct StiffenedGasEos
   }
 
   /**
-   * Compute pressure from specific internal energy
+   * Compute pressure from specific internal energy.
    */
   KOKKOS_INLINE_FUNCTION real_t
   pressure_from_specific_eint(real_t specific_eint, real_t rho) const
@@ -131,7 +131,7 @@ struct StiffenedGasEos
   }
 
   /**
-   * Compute volumic internal energy from pressure
+   * Compute volumic internal energy from pressure.
    */
   KOKKOS_INLINE_FUNCTION real_t
   volumic_eint_from_pressure(real_t pressure) const
@@ -140,7 +140,7 @@ struct StiffenedGasEos
   }
 
   /**
-   * Compute specific internal energy from pressure and density
+   * Compute specific internal energy from pressure and density.
    */
   KOKKOS_INLINE_FUNCTION real_t
   specific_eint_from_pressure(real_t pressure, real_t rho) const
@@ -149,6 +149,8 @@ struct StiffenedGasEos
   }
 
   /**
+   * Compute speed of sound.
+   *
    * By definition isentropic bulk modulus is \f$\kappa = -V \frac{dP}{dV}\f$,
    * where the derivative is taken at constant entropy.
    *
@@ -163,6 +165,8 @@ struct StiffenedGasEos
   }
 
   /**
+   * Compute isentropic bulk modulus.
+   *
    * By definition isentropic bulk modulus is \f$\kappa = -V \frac{dP}{dV}\f$,
    * where the derivative is taken at constant entropy.
    *
