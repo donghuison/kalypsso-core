@@ -82,6 +82,9 @@ struct StiffenedGasEos
     : StiffenedGasEos(0, config_map)
   {}
 
+  /**
+   * \return specific heat ratio
+   */
   KOKKOS_INLINE_FUNCTION
   auto const &
   gamma() const
@@ -89,6 +92,9 @@ struct StiffenedGasEos
     return m_gamma;
   }
 
+  /**
+   * \return reference pressure
+   */
   KOKKOS_INLINE_FUNCTION
   auto const &
   pinf() const
@@ -96,6 +102,9 @@ struct StiffenedGasEos
     return m_pinf;
   }
 
+  /**
+   * \return 1/(gamma-1)
+   */
   KOKKOS_INLINE_FUNCTION
   auto const &
   one_over_gammam1() const
