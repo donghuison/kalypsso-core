@@ -196,8 +196,9 @@ struct MieGruneisenEosVanDerWaalsGas
   {
     const auto arho2 = m_params.a * rho * rho;
 
-    return sqrt((m_gamma * pressure + (m_params.gamma - 2) * arho2 + 2 * m_params.b * arho2 * rho) /
-                (rho - m_params.b * rho * rho));
+    return sqrt(
+      (m_params.gamma * pressure + (m_params.gamma - 2) * arho2 + 2 * m_params.b * arho2 * rho) /
+      (rho - m_params.b * rho * rho));
 
   } // sound_speed
 
