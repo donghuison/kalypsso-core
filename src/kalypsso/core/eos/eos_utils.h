@@ -37,7 +37,8 @@ BETTER_ENUM(EOS_TYPE, int,
             IDEAL_GAS,
             STIFFENED_GAS,
             VANDERWAALS_GAS,
-            MIE_GRUNEISEN)
+            MIE_GRUNEISEN_SW // shockwave eos
+  )
 // clang-format on
 
 

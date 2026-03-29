@@ -166,7 +166,7 @@ struct MieGruneisenEosSW
    * Compute parameter "s" (Hugoniot slope)
    */
   KOKKOS_INLINE_FUNCTION real_t
-  hugoniot_slope(const real_t ev)
+  hugoniot_slope(const real_t ev) const
   {
     return m_params.s1 + m_params.s2 * ev + m_params.s3 * ev * ev;
   }
@@ -175,7 +175,7 @@ struct MieGruneisenEosSW
    * Compute derivative of parameter "s" (Hugoniot slope)
    */
   KOKKOS_INLINE_FUNCTION real_t
-  hugoniot_slope_derivative(const real_t ev)
+  hugoniot_slope_derivative(const real_t ev) const
   {
     return m_params.s1 + 2 * m_params.s2 * ev + 3 * m_params.s3 * ev * ev;
   }
@@ -344,7 +344,7 @@ struct MieGruneisenEosSW
 
     if (rho > 0)
     {
-      const auto ev = 1 - m_params.rho0 * v / rho;
+      const auto ev = 1 - m_params.rho0 / rho;
 
       const auto gam = m_params.Gamma0 * (1 - ev) + m_params.b * ev;
       const auto dpde = gam * rho;
@@ -395,7 +395,7 @@ struct MieGruneisenEosSW
   real_t
   dP_drho_e(real_t eint_specific, real_t rho) const
   {
-    const auto ev = 1 - m_params.rho0 * v / rho;
+    const auto ev = 1 - m_params.rho0 / rho;
     const auto Gamma = m_params.Gamma0 * (1 - ev) + m_params.b * ev;
 
     if (ev > 0) // COMPRESSION
