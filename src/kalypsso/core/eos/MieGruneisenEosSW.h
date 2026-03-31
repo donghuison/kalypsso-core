@@ -331,6 +331,8 @@ struct MieGruneisenEosSW
   } // specific_eint_from_pressure
 
   /**
+   * Compute square speed of sound.
+   *
    * Speed of sound in the case of Mie-Gruneisen EOS can be obtained e.g., by using equation (12) of
    * M.A. Price et al, A method for compressible multimaterial flows with condensed phase explosive
    * detonation and airblast on unstructured grids (https://doi.org/10.1016/j.compfluid.2015.01.006)
@@ -338,7 +340,7 @@ struct MieGruneisenEosSW
    */
   KOKKOS_INLINE_FUNCTION
   real_t
-  sound_speed(real_t pressure, real_t rho) const
+  sound_speed_square(real_t pressure, real_t rho) const
   {
     real_t c2 = ZERO_F;
 
@@ -385,9 +387,20 @@ struct MieGruneisenEosSW
       }
     }
 
-    return std::sqrt(c2);
+    return c2;
 
-  } // sound_speed
+  } // sound_speed_square
+
+  /**
+   * Compute speed of sound.
+   */
+  KOKKOS_INLINE_FUNCTION
+  real_t
+  sound_speed(real_t pressure, real_t rho) const
+  {
+    const auto c2 = sound_speed_square(pressure, rho);
+    return sqrt(c2);
+  }
 
   /**
    * intermediate value useful for computing isentropic bulk modulus.
@@ -432,26 +445,7 @@ struct MieGruneisenEosSW
   real_t
   bulk_modulus(real_t pressure, real_t rho) const
   {
-    const auto eint_specific = specific_eint_from_pressure(pressure, rho);
-
-    const auto ev = 1 - m_params.rho0 / rho;
-    const auto Gamma = m_params.Gamma0 * (1 - ev) + m_params.b * ev;
-
-    if (ev > 0) // COMPRESSION
-    {
-      const auto dPdr_e = dP_drho_e(eint_specific, rho);
-      const auto dPde_r = rho * Gamma;
-
-      // thermodynamic identity
-      return rho * dPdr_e + pressure / rho * dPde_r;
-    }
-    else // RELEASE
-    {
-      return rho * m_params.c02 + m_params.Gamma0 * (rho * eint_specific + pressure);
-    }
-
-    return ZERO_F;
-
+    return rho * sound_speed_square(pressure, rho);
   } // bulk_modulus
 
 }; // struct MieGruneisenEosSW
