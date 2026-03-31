@@ -31,17 +31,37 @@ gamma6(real_t const & gamma0)
 
 // clang-format off
 /**
- * Enumerate types of stencil used for finite difference estimation first derivative.
+ * Enumerate types of equation of states (monofluid).
  */
 BETTER_ENUM(EOS_TYPE, int,
             IDEAL_GAS,
             STIFFENED_GAS,
             VANDERWAALS_GAS,
-            MIE_GRUNEISEN)
+            MIE_GRUNEISEN, // To be removed
+            MIE_GRUNEISEN_SW, // shockwave eos
+            MIE_GRUNEISEN_CC, // Cochran-Chan eos
+            MIE_GRUNEISEN_JWL // JWL (Jones-Wilkins-Lee) eos
+  )
+// clang-format on
+
+
+// clang-format off
+/**
+ * Enumerate types of equation of states (multifluid) using the Mie-Gruneisen form.
+ */
+BETTER_ENUM(MG_EOS_TYPE, int,
+            MG_IDEAL_GAS,
+            MG_STIFFENED_GAS,
+            MG_VANDERWAALS_GAS,
+            MG_COCHRAN_CHAN,
+            MG_JWL,
+            MG_SHOCKWAVE)
 // clang-format on
 
 /**
  * Read eos type from input parameters file.
+ *
+ * \note This is only useful for monofluid simulation.
  */
 inline EOS_TYPE
 get_eos_type(ConfigMap const & config_map)
@@ -51,6 +71,23 @@ get_eos_type(ConfigMap const & config_map)
   if (maybe_value)
     return *maybe_value;
   return EOS_TYPE::STIFFENED_GAS;
+}
+
+/**
+ * Read Mie-Gruneisen eos type from input parameters file.
+ *
+ * \note This is mostly useful for multifluid/multimaterial simulation.
+ */
+inline MG_EOS_TYPE
+get_mg_eos_type(const size_t i_mat, ConfigMap const & config_map)
+{
+  const auto material_id = "material" + std::to_string(i_mat);
+
+  auto eos_name = config_map.getString(material_id, "mg_eos_name", "MG_STIFFENED_GAS");
+  auto maybe_value = MG_EOS_TYPE::_from_string_nothrow(eos_name.c_str());
+  if (maybe_value)
+    return *maybe_value;
+  return MG_EOS_TYPE::MG_STIFFENED_GAS;
 }
 
 /**

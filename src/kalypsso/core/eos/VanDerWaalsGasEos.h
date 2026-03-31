@@ -131,7 +131,7 @@ struct VanDerWaalsGasEos
   }
 
   /**
-   * Compute pressure from volumic internal energy
+   * Compute pressure from volumic internal energy.
    */
   KOKKOS_INLINE_FUNCTION real_t
   pressure_from_volumic_eint(real_t eint_volumic, real_t rho) const
@@ -141,7 +141,7 @@ struct VanDerWaalsGasEos
   }
 
   /**
-   * Compute pressure from specific internal energy
+   * Compute pressure from specific internal energy.
    */
   KOKKOS_INLINE_FUNCTION real_t
   pressure_from_specific_eint(real_t eint_specific, real_t rho) const
@@ -150,7 +150,7 @@ struct VanDerWaalsGasEos
   }
 
   /**
-   * Compute volumic internal energy from pressure
+   * Compute volumic internal energy from pressure.
    */
   KOKKOS_INLINE_FUNCTION real_t
   volumic_eint_from_pressure(real_t pressure, real_t rho) const
@@ -160,7 +160,7 @@ struct VanDerWaalsGasEos
   }
 
   /**
-   * Compute specific internal energy from pressure and density
+   * Compute specific internal energy from pressure and density.
    */
   KOKKOS_INLINE_FUNCTION real_t
   specific_eint_from_pressure(real_t pressure, real_t rho) const
@@ -169,12 +169,14 @@ struct VanDerWaalsGasEos
   }
 
   /**
+   * Compute speed of sound.
+   *
    * By using the alternate definition of speed of sound
    *
    * \f$ \frac{\frac{P}{\rho^2}-\frac{\partial e}{\partial \rho}\bigg_P}{\frac{\partial e}{\partial
    * P}\bigg_\rho}\f$
    *
-   * on obtains for the van der Waals EOS the following expression
+   * one obtains for the van der Waals EOS the following expression
    * \f$ c = \sqrt{ \frac{\gamma P + (\gamma-2) a  \rho^2 + 2 a b \rho^3}{\rho(1 -b \rho )} }\f$.
    */
   KOKKOS_INLINE_FUNCTION
@@ -188,6 +190,8 @@ struct VanDerWaalsGasEos
   }
 
   /**
+   * Compute isentropic bulk modulus.
+   *
    * By definition isentropic bulk modulus is \f$\kappa = -V \frac{dP}{dV}\f$,
    * where the derivative is taken at constant entropy.
    *
