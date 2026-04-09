@@ -345,8 +345,41 @@ real_t
 MieGruneisenMixture<device_t>::material_bulk_modulus(int i_mat, real_t pressure, real_t rho) const
 {
 
-  const auto c2 = material_sound_speed_square(i_mat, pressure, rho);
-  return rho * c2;
+  // const auto c2 = material_sound_speed_square(i_mat, pressure, rho);
+  // return rho * c2;
+
+  // get EOS type
+  const auto eos_type = MG_EOS_TYPE::_from_integral_unchecked(m_material_eos_type(i_mat));
+
+  // get material eos id
+  const auto material_eos_id = m_material_eos_id(i_mat);
+
+  if (eos_type == +MG_EOS_TYPE::MG_IDEAL_GAS)
+  {
+    return m_mg_eos_ig(material_eos_id).bulk_modulus(pressure, rho);
+  }
+  else if (eos_type == +MG_EOS_TYPE::MG_STIFFENED_GAS)
+  {
+    return m_mg_eos_sg(material_eos_id).bulk_modulus(pressure, rho);
+  }
+  else if (eos_type == +MG_EOS_TYPE::MG_VANDERWAALS_GAS)
+  {
+    return m_mg_eos_vdw(material_eos_id).bulk_modulus(pressure, rho);
+  }
+  else if (eos_type == +MG_EOS_TYPE::MG_SHOCKWAVE)
+  {
+    return m_mg_eos_sw(material_eos_id).bulk_modulus(pressure, rho);
+  }
+  else if (eos_type == +MG_EOS_TYPE::MG_JWL)
+  {
+    return m_mg_eos_jwl(material_eos_id).bulk_modulus(pressure, rho);
+  }
+  else if (eos_type == +MG_EOS_TYPE::MG_COCHRAN_CHAN)
+  {
+    return m_mg_eos_cc(material_eos_id).bulk_modulus(pressure, rho);
+  }
+
+  return ZERO_F;
 
 } // MieGruneisenMixture<device_t>::material_bulk_modulus
 
@@ -359,7 +392,7 @@ MieGruneisenMixture<device_t>::mixture_gruneisen_param(real_t phi0,
                                                        real_t phi_rho0,
                                                        real_t phi_rho1) const
 {
-  real_t tmp = ZERO_F;
+  auto tmp = ZERO_F;
 
   // material 0
   // if (phi0 > LOW_PHI)
@@ -373,7 +406,7 @@ MieGruneisenMixture<device_t>::mixture_gruneisen_param(real_t phi0,
     tmp += phi1 / material_gruneisen_param(1, phi_rho1 / phi1);
   }
 
-  return 1 / tmp;
+  return ONE_F / tmp;
 
 } // MieGruneisenMixture<device_t>::mixture_gruneisen_param
 
@@ -393,7 +426,7 @@ MieGruneisenMixture<device_t>::mixture_pressure(real_t rho,
   // J. Appl. Phys. 131, 104901 (2022)
   // https://doi.org/10.1063/5.0079970
 
-  real_t tmp = ZERO_F;
+  auto tmp = ZERO_F;
 
   // material 0
   const auto rho0 = phi0 > LOW_PHI ? phi_rho0 / phi0 : ONE_F;
@@ -475,21 +508,24 @@ MieGruneisenMixture<device_t>::mixture_sound_speed_square(real_t rho,
   // J. Appl. Phys. 131, 104901 (2022)
   // https://doi.org/10.1063/5.0079970
   //
-  // The formula from this article is slightly erroneous, but we use the correct one
+  // Important note:
+  // - The formula from this article is slightly erroneous (additionnal volume fraction at numerator
+  // shouldn't exist)
+  // - the formula is slightly rewritten to treat bulk modulus (rho*c^2) as whole; the formula is
+  // much more numerically stable as it avoid using rho0 and rho1 which may be ill-defined in
+  // regions where volume fraction is very small
 
-  real_t tmp = ZERO_F;
+  auto tmp = ZERO_F;
 
   // material 0
   const auto rho0 = phi0 > LOW_PHI ? phi_rho0 / phi0 : ONE_F;
-  const auto Y0 = phi_rho0 / rho; // mass fraction
-  tmp += Y0 * material_sound_speed_square(0, pressure, rho0) / material_gruneisen_param(0, rho0);
+  tmp += phi0 * material_bulk_modulus(0, pressure, rho0) / material_gruneisen_param(0, rho0);
 
   // material 1
   const auto rho1 = phi1 > LOW_PHI ? phi_rho1 / phi1 : ONE_F;
-  const auto Y1 = phi_rho1 / rho; // mass fraction
-  tmp += Y1 * material_sound_speed_square(1, pressure, rho1) / material_gruneisen_param(1, rho1);
+  tmp += phi1 * material_bulk_modulus(1, pressure, rho1) / material_gruneisen_param(1, rho1);
 
-  return mixture_gruneisen_param(phi0, phi1, phi_rho0, phi_rho1) * tmp;
+  return mixture_gruneisen_param(phi0, phi1, phi_rho0, phi_rho1) / rho * tmp;
 
 } // MieGruneisenMixture<device_t>::mixture_sound_speed_square
 

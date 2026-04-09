@@ -219,10 +219,9 @@ struct MieGruneisenEosStiffenedGas
    */
   KOKKOS_INLINE_FUNCTION
   real_t
-  bulk_modulus(real_t pressure, real_t rho) const
+  bulk_modulus(real_t pressure, [[maybe_unused]] real_t rho) const
   {
-    const auto c = sound_speed(pressure, rho);
-    return rho * c * c;
+    return m_params.gamma * (pressure + m_params.pinf);
   } // bulk_modulus
 
 }; // struct MieGruneisenEosStiffenedGas

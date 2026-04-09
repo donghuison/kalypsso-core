@@ -159,7 +159,7 @@ private:
   material_eos_id_t m_material_eos_id;
 
   //! low value for a volume fraction
-  static constexpr real_t LOW_PHI = 1e-5;
+  static constexpr real_t LOW_PHI = 1e-9;
 
 public:
   /**
