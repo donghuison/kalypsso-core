@@ -27,9 +27,9 @@ get_number_of_eos(ConfigMap const & config_map, MG_EOS_TYPE mg_eos_type)
   size_t     num_mat = 0;
   const auto nmat = static_cast<size_t>(config_map.getInteger("run", "nmat", 2));
 
-  for (size_t imat = 0; imat < nmat; ++imat)
+  for (size_t i_mat = 0; i_mat < nmat; ++i_mat)
   {
-    if (get_mg_eos_type(imat, config_map) == mg_eos_type)
+    if (get_mg_eos_type(i_mat, config_map) == mg_eos_type)
     {
       num_mat++;
     }
@@ -176,13 +176,13 @@ MieGruneisenMixture<device_t>::MieGruneisenMixture(ConfigMap const & config_map)
 // =====================================================================
 template <typename device_t>
 real_t
-MieGruneisenMixture<device_t>::material_gruneisen_param(int imat, real_t rho) const
+MieGruneisenMixture<device_t>::material_gruneisen_param(int i_mat, real_t rho) const
 {
   // get EOS type
-  const auto eos_type = MG_EOS_TYPE::_from_integral_unchecked(m_material_eos_type(imat));
+  const auto eos_type = MG_EOS_TYPE::_from_integral_unchecked(m_material_eos_type(i_mat));
 
   // get material eos id
-  const auto material_eos_id = m_material_eos_id(imat);
+  const auto material_eos_id = m_material_eos_id(i_mat);
 
   if (eos_type == +MG_EOS_TYPE::MG_IDEAL_GAS)
   {
@@ -217,13 +217,13 @@ MieGruneisenMixture<device_t>::material_gruneisen_param(int imat, real_t rho) co
 // =====================================================================
 template <typename device_t>
 real_t
-MieGruneisenMixture<device_t>::material_specific_eint_ref(int imat, real_t rho) const
+MieGruneisenMixture<device_t>::material_specific_eint_ref(int i_mat, real_t rho) const
 {
   // get EOS type
-  const auto eos_type = MG_EOS_TYPE::_from_integral_unchecked(m_material_eos_type(imat));
+  const auto eos_type = MG_EOS_TYPE::_from_integral_unchecked(m_material_eos_type(i_mat));
 
   // get material eos id
-  const auto material_eos_id = m_material_eos_id(imat);
+  const auto material_eos_id = m_material_eos_id(i_mat);
 
   if (eos_type == +MG_EOS_TYPE::MG_IDEAL_GAS)
   {
@@ -258,13 +258,13 @@ MieGruneisenMixture<device_t>::material_specific_eint_ref(int imat, real_t rho) 
 // =====================================================================
 template <typename device_t>
 real_t
-MieGruneisenMixture<device_t>::material_pressure_ref(int imat, real_t rho) const
+MieGruneisenMixture<device_t>::material_pressure_ref(int i_mat, real_t rho) const
 {
   // get EOS type
-  const auto eos_type = MG_EOS_TYPE::_from_integral_unchecked(m_material_eos_type(imat));
+  const auto eos_type = MG_EOS_TYPE::_from_integral_unchecked(m_material_eos_type(i_mat));
 
   // get material eos id
-  const auto material_eos_id = m_material_eos_id(imat);
+  const auto material_eos_id = m_material_eos_id(i_mat);
 
   if (eos_type == +MG_EOS_TYPE::MG_IDEAL_GAS)
   {
@@ -299,15 +299,15 @@ MieGruneisenMixture<device_t>::material_pressure_ref(int imat, real_t rho) const
 // =====================================================================
 template <typename device_t>
 real_t
-MieGruneisenMixture<device_t>::material_sound_speed_square(int    imat,
+MieGruneisenMixture<device_t>::material_sound_speed_square(int    i_mat,
                                                            real_t pressure,
                                                            real_t rho) const
 {
   // get EOS type
-  const auto eos_type = MG_EOS_TYPE::_from_integral_unchecked(m_material_eos_type(imat));
+  const auto eos_type = MG_EOS_TYPE::_from_integral_unchecked(m_material_eos_type(i_mat));
 
   // get material eos id
-  const auto material_eos_id = m_material_eos_id(imat);
+  const auto material_eos_id = m_material_eos_id(i_mat);
 
   if (eos_type == +MG_EOS_TYPE::MG_IDEAL_GAS)
   {
@@ -342,10 +342,10 @@ MieGruneisenMixture<device_t>::material_sound_speed_square(int    imat,
 // =====================================================================
 template <typename device_t>
 real_t
-MieGruneisenMixture<device_t>::material_bulk_modulus(int imat, real_t pressure, real_t rho) const
+MieGruneisenMixture<device_t>::material_bulk_modulus(int i_mat, real_t pressure, real_t rho) const
 {
 
-  const auto c2 = material_sound_speed_square(imat, pressure, rho);
+  const auto c2 = material_sound_speed_square(i_mat, pressure, rho);
   return rho * c2;
 
 } // MieGruneisenMixture<device_t>::material_bulk_modulus

@@ -165,7 +165,7 @@ public:
   /**
    * Retrieve Gruneisen parameter of a given material.
    *
-   * \param[in] imat material id
+   * \param[in] i_mat material id
    * \param[in] rho material density (rho_phi/phi)
    *
    * \note the caller is responsible for computing material density and cross-checking
@@ -173,12 +173,12 @@ public:
    */
   KOKKOS_FUNCTION
   real_t
-  material_gruneisen_param(int imat, real_t rho) const;
+  material_gruneisen_param(int i_mat, real_t rho) const;
 
   /**
    * Retrieve reference specific internal energy of a given material.
    *
-   * \param[in] imat material id
+   * \param[in] i_mat material id
    * \param[in] rho material density (rho_phi/phi)
    *
    * \note the caller is responsible for computing material density and cross-checking
@@ -186,12 +186,12 @@ public:
    */
   KOKKOS_FUNCTION
   real_t
-  material_specific_eint_ref(int imat, real_t rho) const;
+  material_specific_eint_ref(int i_mat, real_t rho) const;
 
   /**
    * Retrieve reference pressure of a given material.
    *
-   * \param[in] imat material id
+   * \param[in] i_mat material id
    * \param[in] rho material density (rho_phi/phi)
    *
    * \note the caller is responsible for computing material density and cross-checking
@@ -199,12 +199,12 @@ public:
    */
   KOKKOS_FUNCTION
   real_t
-  material_pressure_ref(int imat, real_t rho) const;
+  material_pressure_ref(int i_mat, real_t rho) const;
 
   /**
    * Retrieve sound speed square of a given material.
    *
-   * \param[in] imat material id
+   * \param[in] i_mat material id
    * \param[in] pressure (same for all materials, isobaric closure)
    * \param[in] rho material density (rho_phi/phi)
    *
@@ -213,14 +213,14 @@ public:
    */
   KOKKOS_FUNCTION
   real_t
-  material_sound_speed_square(int imat, real_t pressure, real_t rho) const;
+  material_sound_speed_square(int i_mat, real_t pressure, real_t rho) const;
 
   /**
    * Retrieve isentropic bulk modulus of a given material.
    */
   KOKKOS_FUNCTION
   real_t
-  material_bulk_modulus(int imat, real_t pressure, real_t rho) const;
+  material_bulk_modulus(int i_mat, real_t pressure, real_t rho) const;
 
   /**
    * Compute mixture Gruneisen parameter (two materials).
