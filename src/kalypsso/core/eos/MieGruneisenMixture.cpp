@@ -342,6 +342,18 @@ MieGruneisenMixture<device_t>::material_sound_speed_square(int    imat,
 // =====================================================================
 template <typename device_t>
 real_t
+MieGruneisenMixture<device_t>::material_bulk_modulus(int imat, real_t pressure, real_t rho) const
+{
+
+  const auto c2 = material_sound_speed_square(imat, pressure, rho);
+  return rho * c2;
+
+} // MieGruneisenMixture<device_t>::material_bulk_modulus
+
+// =====================================================================
+// =====================================================================
+template <typename device_t>
+real_t
 MieGruneisenMixture<device_t>::mixture_gruneisen_param(real_t phi0,
                                                        real_t phi1,
                                                        real_t phi_rho0,
@@ -512,6 +524,22 @@ MieGruneisenMixture<device_t>::mixture_sound_speed(real_t rho,
   return sqrt(mixture_sound_speed_square(rho, pressure, phi0, phi1, phi_rho0, phi_rho1));
 
 } // MieGruneisenMixture<device_t>::mixture_sound_speed
+
+// =====================================================================
+// =====================================================================
+template <typename device_t>
+real_t
+MieGruneisenMixture<device_t>::mixture_bulk_modulus(real_t rho,
+                                                    real_t pressure,
+                                                    real_t phi0,
+                                                    real_t phi1,
+                                                    real_t phi_rho0,
+                                                    real_t phi_rho1) const
+{
+
+  return rho * mixture_sound_speed_square(rho, pressure, phi0, phi1, phi_rho0, phi_rho1);
+
+} // MieGruneisenMixture<device_t>::mixture_bulk_modulus
 
 // explicit template instantiation
 #ifdef KALYPSSO_CORE_INSTANTIATE_HOST_TEMPLATE

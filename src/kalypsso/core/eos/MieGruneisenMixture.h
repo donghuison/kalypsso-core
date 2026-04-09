@@ -216,6 +216,13 @@ public:
   material_sound_speed_square(int imat, real_t pressure, real_t rho) const;
 
   /**
+   * Retrieve isentropic bulk modulus of a given material.
+   */
+  KOKKOS_FUNCTION
+  real_t
+  material_bulk_modulus(int imat, real_t pressure, real_t rho) const;
+
+  /**
    * Compute mixture Gruneisen parameter (two materials).
    *
    * \param[in] phi0 volume fraction of material 0
@@ -332,6 +339,18 @@ public:
                       real_t phi1,
                       real_t phi_rho0,
                       real_t phi_rho1) const;
+
+  /**
+   * Compute mixture isentropic bulk modulus.
+   */
+  KOKKOS_FUNCTION
+  real_t
+  mixture_bulk_modulus(real_t rho,
+                       real_t pressure,
+                       real_t phi0,
+                       real_t phi1,
+                       real_t phi_rho0,
+                       real_t phi_rho1) const;
 
 }; // class MieGruneisenMixture
 
