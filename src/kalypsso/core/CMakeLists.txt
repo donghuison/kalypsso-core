@@ -83,6 +83,8 @@ add_library(
   eos/eos_utils.h
   eos/IdealGasEos.h
   eos/IdealGasMixture.h
+  eos/MieGruneisenEosArray.cpp
+  eos/MieGruneisenEosArray.h
   eos/MieGruneisenEosCochranChan.h
   eos/MieGruneisenEosIdealGas.h
   eos/MieGruneisenEosJWL.h
