@@ -90,6 +90,9 @@ private:
   //! EOS array
   MieGruneisenEosArray<device_t> m_eos_array;
 
+  //! small pressure guard
+  const real_t m_small_p;
+
   //! low value for a volume fraction
   static constexpr real_t LOW_PHI = 1e-9;
 

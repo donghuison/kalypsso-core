@@ -24,6 +24,7 @@ namespace eos
 template <typename device_t>
 MieGruneisenMixture<device_t>::MieGruneisenMixture(ConfigMap const & config_map)
   : m_eos_array(config_map)
+  , m_small_p(config_map.getReal("mixture", "smallp", KALYPSSO_NUM(1e-9)))
 {} // MieGruneisenMixture<device_t>::MieGruneisenMixture
 
 // =====================================================================
@@ -91,7 +92,8 @@ MieGruneisenMixture<device_t>::mixture_pressure(real_t rho,
   const auto pressure_mix =
     mixture_gruneisen_param(phi0, phi1, phi_rho0, phi_rho1) * (rho * eint - tmp);
 
-  return pressure_mix;
+  // return pressure_mix;
+  return pressure_mix < m_small_p ? m_small_p : pressure_mix;
 
 } // MieGruneisenMixture<device_t>::mixture_pressure
 
