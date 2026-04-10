@@ -55,6 +55,10 @@ struct MieGruneisenEosStiffenedGasParam
   //! one over gamma minus one
   real_t one_over_gammam1;
 
+  //! reference density.
+  //! For multimaterial usage: when material volume fraction is too small, use reference density
+  real_t rho0;
+
   //! retrieve parameters from input config
   static auto
   get_parameters(const size_t i_mat, const ConfigMap & config_map)
@@ -66,6 +70,7 @@ struct MieGruneisenEosStiffenedGasParam
     params.gamma = config_map.getReal(material_id, "gamma", KALYPSSO_NUM(1.0));
     params.one_over_gammam1 = ONE_F / (params.gamma - ONE_F);
     params.pinf = config_map.getReal(material_id, "pinf", KALYPSSO_NUM(0.0));
+    params.rho0 = config_map.getReal(material_id, "rho0", KALYPSSO_NUM(1.0));
 
     return params;
   } // get_parameters
@@ -119,6 +124,15 @@ struct MieGruneisenEosStiffenedGas
   print()
   {
     m_params.print();
+  }
+
+  /**
+   * Reference density.
+   */
+  KOKKOS_INLINE_FUNCTION real_t
+  density_ref() const
+  {
+    return m_params.rho0;
   }
 
   /**

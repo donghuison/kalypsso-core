@@ -52,6 +52,10 @@ struct MieGruneisenEosIdealGasParam
   //! one over gamma minus one
   real_t one_over_gammam1;
 
+  //! reference density.
+  //! For multimaterial usage: when material volume fraction is too small, use reference density
+  real_t rho0;
+
   //! retrieve parameters from input config
   static auto
   get_parameters(const size_t i_mat, const ConfigMap & config_map)
@@ -62,6 +66,7 @@ struct MieGruneisenEosIdealGasParam
 
     params.gamma = config_map.getReal(material_id, "gamma", KALYPSSO_NUM(1.0));
     params.one_over_gammam1 = ONE_F / (params.gamma - ONE_F);
+    params.rho0 = config_map.getReal(material_id, "rho0", KALYPSSO_NUM(1.0));
 
     return params;
   } // get_parameters
@@ -118,14 +123,22 @@ struct MieGruneisenEosIdealGas
   }
 
   /**
+   * Reference density.
+   */
+  KOKKOS_INLINE_FUNCTION real_t
+  density_ref() const
+  {
+    return m_params.rho0;
+  }
+
+  /**
    * Compute Gruneisen parameter.
    *
    * Useful and needed for mixture computations.
    *
    * \return Gruneisen parameter.
    */
-  KOKKOS_INLINE_FUNCTION real_t
-  gamma([[maybe_unused]] const real_t rho) const
+  KOKKOS_INLINE_FUNCTION real_t gamma([[maybe_unused]] const real_t rho) const
   {
     return m_params.gamma - ONE_F;
   }

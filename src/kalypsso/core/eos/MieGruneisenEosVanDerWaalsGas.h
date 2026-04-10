@@ -60,6 +60,10 @@ struct MieGruneisenEosVanDerWaalsGasParam
   //! covolume
   real_t b;
 
+  //! reference density.
+  //! For multimaterial usage: when material volume fraction is too small, use reference density
+  real_t rho0;
+
   //! retrieve parameters from input config
   static auto
   get_parameters(const size_t i_mat, const ConfigMap & config_map)
@@ -72,6 +76,7 @@ struct MieGruneisenEosVanDerWaalsGasParam
     params.one_over_gammam1 = ONE_F / (params.gamma - ONE_F);
     params.a = config_map.getReal(material_id, "a", KALYPSSO_NUM(0.0));
     params.b = config_map.getReal(material_id, "b", KALYPSSO_NUM(0.0));
+    params.rho0 = config_map.getReal(material_id, "rho0", KALYPSSO_NUM(1.0));
 
     return params;
   } // get_parameters
@@ -125,6 +130,15 @@ struct MieGruneisenEosVanDerWaalsGas
   print()
   {
     m_params.print();
+  }
+
+  /**
+   * Reference density.
+   */
+  KOKKOS_INLINE_FUNCTION real_t
+  density_ref() const
+  {
+    return m_params.rho0;
   }
 
   /**

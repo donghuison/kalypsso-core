@@ -155,6 +155,15 @@ struct MieGruneisenEosSW
   }
 
   /**
+   * Reference density.
+   */
+  KOKKOS_INLINE_FUNCTION real_t
+  density_ref() const
+  {
+    return m_params.rho0;
+  }
+
+  /**
    * Compute Gruneisen parameter.
    *
    * Useful and needed for mixture computations.
