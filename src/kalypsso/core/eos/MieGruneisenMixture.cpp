@@ -39,14 +39,14 @@ MieGruneisenMixture<device_t>::mixture_gruneisen_param(real_t phi0,
   auto tmp = ZERO_F;
 
   // material 0
-  // if (phi0 > LOW_PHI)
+  if (phi0 > LOW_PHI)
   {
     const auto Gamma0 = m_eos_array.material_gruneisen_param(0, phi_rho0 / phi0);
     tmp += phi0 / Gamma0;
   }
 
   // material 1
-  // if (phi1 > LOW_PHI)
+  if (phi1 > LOW_PHI)
   {
     const auto Gamma1 = m_eos_array.material_gruneisen_param(1, phi_rho1 / phi1);
     tmp += phi1 / Gamma1;
@@ -80,7 +80,6 @@ MieGruneisenMixture<device_t>::mixture_pressure(real_t rho,
   const auto pref0 = m_eos_array.material_pressure_ref(0, rho0);
   const auto Gamma0 = m_eos_array.material_gruneisen_param(0, rho0);
   tmp += phi0 > LOW_PHI ? phi_rho0 * eint0 - phi0 * pref0 / Gamma0 : ZERO_F;
-
 
   // material 1
   const auto rho1 = phi1 > LOW_PHI ? phi_rho1 / phi1 : ONE_F;
@@ -116,19 +115,24 @@ MieGruneisenMixture<device_t>::mixture_volumic_eint([[maybe_unused]] real_t rho,
   real_t eint = ZERO_F;
 
   // material 0
-  const auto rho0 = phi0 > LOW_PHI ? phi_rho0 / phi0 : ONE_F;
-  const auto eint0 = m_eos_array.material_specific_eint_ref(0, rho0);
-  eint += phi_rho0 * eint0;
-  eint += phi0 * (pressure - m_eos_array.material_pressure_ref(0, rho0)) /
-          m_eos_array.material_gruneisen_param(0, rho0);
+  if (phi0 > LOW_PHI)
+  {
+    const auto rho0 = phi_rho0 / phi0;
+    const auto eint0 = m_eos_array.material_specific_eint_ref(0, rho0);
+    eint += phi_rho0 * eint0;
+    eint += phi0 * (pressure - m_eos_array.material_pressure_ref(0, rho0)) /
+            m_eos_array.material_gruneisen_param(0, rho0);
+  }
 
   // material 1
-  const auto rho1 = phi1 > LOW_PHI ? phi_rho1 / phi1 : ONE_F;
-  const auto eint1 = m_eos_array.material_specific_eint_ref(1, rho1);
-  eint += phi_rho1 * eint1;
-  eint += phi1 * (pressure - m_eos_array.material_pressure_ref(1, rho1)) /
-          m_eos_array.material_gruneisen_param(1, rho1);
-
+  if (phi1 > LOW_PHI)
+  {
+    const auto rho1 = phi_rho1 / phi1;
+    const auto eint1 = m_eos_array.material_specific_eint_ref(1, rho1);
+    eint += phi_rho1 * eint1;
+    eint += phi1 * (pressure - m_eos_array.material_pressure_ref(1, rho1)) /
+            m_eos_array.material_gruneisen_param(1, rho1);
+  }
   return eint;
 
 } // MieGruneisenMixture<device_t>::mixture_volumic_eint
@@ -164,8 +168,8 @@ MieGruneisenMixture<device_t>::mixture_sound_speed_square(real_t rho,
   // https://doi.org/10.1063/5.0079970
   //
   // Important note:
-  // - The formula from this article is slightly erroneous (additionnal volume fraction at numerator
-  // shouldn't exist)
+  // - The formula from this article is slightly erroneous (additionnal volume fraction at
+  // numerator shouldn't exist)
   // - the formula is slightly rewritten to treat bulk modulus (rho*c^2) as whole; the formula is
   // much more numerically stable as it avoid using rho0 and rho1 which may be ill-defined in
   // regions where volume fraction is very small
@@ -173,14 +177,20 @@ MieGruneisenMixture<device_t>::mixture_sound_speed_square(real_t rho,
   auto tmp = ZERO_F;
 
   // material 0
-  const auto rho0 = phi0 > LOW_PHI ? phi_rho0 / phi0 : ONE_F;
-  tmp += phi0 * m_eos_array.material_bulk_modulus(0, pressure, rho0) /
-         m_eos_array.material_gruneisen_param(0, rho0);
+  if (phi0 > LOW_PHI)
+  {
+    const auto rho0 = phi_rho0 / phi0;
+    tmp += phi0 * m_eos_array.material_bulk_modulus(0, pressure, rho0) /
+           m_eos_array.material_gruneisen_param(0, rho0);
+  }
 
   // material 1
-  const auto rho1 = phi1 > LOW_PHI ? phi_rho1 / phi1 : ONE_F;
-  tmp += phi1 * m_eos_array.material_bulk_modulus(1, pressure, rho1) /
-         m_eos_array.material_gruneisen_param(1, rho1);
+  if (phi1 > LOW_PHI)
+  {
+    const auto rho1 = phi_rho1 / phi1;
+    tmp += phi1 * m_eos_array.material_bulk_modulus(1, pressure, rho1) /
+           m_eos_array.material_gruneisen_param(1, rho1);
+  }
 
   return mixture_gruneisen_param(phi0, phi1, phi_rho0, phi_rho1) / rho * tmp;
 
