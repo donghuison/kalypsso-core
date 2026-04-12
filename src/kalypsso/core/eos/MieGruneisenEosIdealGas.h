@@ -138,7 +138,8 @@ struct MieGruneisenEosIdealGas
    *
    * \return Gruneisen parameter.
    */
-  KOKKOS_INLINE_FUNCTION real_t gamma([[maybe_unused]] const real_t rho) const
+  KOKKOS_INLINE_FUNCTION real_t
+  gamma([[maybe_unused]] const real_t rho) const
   {
     return m_params.gamma - ONE_F;
   }
@@ -153,7 +154,7 @@ struct MieGruneisenEosIdealGas
   } // pressure_ref
 
   /**
-   * Compute reference specifc internal energy.
+   * Compute reference specific internal energy.
    */
   KOKKOS_INLINE_FUNCTION real_t
   eint_ref([[maybe_unused]] const real_t rho) const

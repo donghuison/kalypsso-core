@@ -168,7 +168,7 @@ MieGruneisenMixture<device_t>::mixture_sound_speed_square(real_t rho,
   // https://doi.org/10.1063/5.0079970
   //
   // Important note:
-  // - The formula from this article is slightly erroneous (additionnal volume fraction at
+  // - The formula from this article is slightly erroneous (additional volume fraction at
   // numerator shouldn't exist)
   // - the formula is slightly rewritten to treat bulk modulus (rho*c^2) as whole; the formula is
   // much more numerically stable as it avoid using rho0 and rho1 which may be ill-defined in
