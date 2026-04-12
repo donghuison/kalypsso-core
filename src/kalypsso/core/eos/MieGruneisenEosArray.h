@@ -26,6 +26,7 @@
 #include <kalypsso/core/eos/MieGruneisenEosCochranChan.h>
 #include <kalypsso/core/eos/MieGruneisenEosJWL.h>
 #include <kalypsso/core/eos/MieGruneisenEosSW.h>
+#include <kalypsso/core/eos/MieGruneisenEosSW2.h>
 #include <kalypsso/core/eos/MieGruneisenEosIdealGas.h>
 #include <kalypsso/core/eos/MieGruneisenEosStiffenedGas.h>
 #include <kalypsso/core/eos/MieGruneisenEosVanDerWaalsGas.h>
@@ -51,6 +52,10 @@ using mg_eos_jwl_array_t = Kokkos::View<MieGruneisenEosJWL *, device_t>;
 //! type alias for an array of Mie-Gruneisen EOS of type SW (Shockwave)
 template <typename device_t>
 using mg_eos_sw_array_t = Kokkos::View<MieGruneisenEosSW *, device_t>;
+
+//! type alias for an array of Mie-Gruneisen EOS of type SW2 (Shockwave v2)
+template <typename device_t>
+using mg_eos_sw2_array_t = Kokkos::View<MieGruneisenEosSW2 *, device_t>;
 
 //! type alias for an array of Mie-Gruneisen EOS of type ideal gas
 template <typename device_t>
@@ -102,6 +107,9 @@ private:
 
   //! array of eos, one per material (shockwave)
   mg_eos_sw_array_t<device_t> m_mg_eos_sw;
+
+  //! array of eos, one per material (shockwave v2)
+  mg_eos_sw2_array_t<device_t> m_mg_eos_sw2;
 
   //! array of eos, one per material (Cochran-Chan)
   mg_eos_cc_array_t<device_t> m_mg_eos_cc;

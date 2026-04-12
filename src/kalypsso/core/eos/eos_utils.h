@@ -39,6 +39,7 @@ BETTER_ENUM(EOS_TYPE, int,
             VANDERWAALS_GAS,
             MIE_GRUNEISEN, // To be removed
             MIE_GRUNEISEN_SW, // shockwave eos
+            MIE_GRUNEISEN_SW2, // shockwave eos (v2)
             MIE_GRUNEISEN_CC, // Cochran-Chan eos
             MIE_GRUNEISEN_JWL // JWL (Jones-Wilkins-Lee) eos
   )
@@ -56,7 +57,8 @@ BETTER_ENUM(MG_EOS_TYPE, int,
             MG_COCHRAN_CHAN =    3,
             MG_JWL =             4,
             MG_SHOCKWAVE =       5,
-            MG_INVALID =         6, // MUST BE LAST
+            MG_SHOCKWAVE2 =      6,
+            MG_INVALID =         7, // MUST BE LAST
             MG_NUM = MG_INVALID     // total number of EOS
             )
 // clang-format on

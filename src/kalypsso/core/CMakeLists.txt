@@ -90,6 +90,7 @@ add_library(
   eos/MieGruneisenEosJWL.h
   eos/MieGruneisenEosStiffenedGas.h
   eos/MieGruneisenEosSW.h
+  eos/MieGruneisenEosSW2.h
   eos/MieGruneisenEosVanDerWaalsGas.h
   eos/MieGruneisenMixture.cpp
   eos/MieGruneisenMixture.h
