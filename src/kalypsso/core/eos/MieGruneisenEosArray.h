@@ -200,6 +200,13 @@ public:
   real_t
   material_specific_eint_from_pressure(int i_mat, real_t pressure, real_t rho) const;
 
+  /**
+   * Retrieve pressure of a given material from specific internal energy.
+   */
+  KOKKOS_FUNCTION
+  real_t
+  material_pressure_from_specific_eint(int i_mat, real_t eint_specific, real_t rho) const;
+
 }; // class MieGruneisenEosArray
 
 // explicit template instantiation
