@@ -84,7 +84,7 @@ CheckFaceBorderCompatibility<dim, device_t>::check(index_t const & surface_flati
   const auto key_cur = m_stencil_helper.key(iOct);
 
   // create a face location for current face
-  const FaceLocation_t face_loc{ ijk_face, key_cur, iOct, false };
+  const auto face_loc = FaceLocation_t(ijk_face, key_cur, iOct, false);
 
   // create a face location for neighbor
   auto         face_loc_neigh = m_stencil_helper.getNeighLoc(face_loc, normal);
