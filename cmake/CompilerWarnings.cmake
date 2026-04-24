@@ -154,7 +154,16 @@ function(
       # don't do anything about -Wold-style-cast as it generates too many false positive warnings
       # suppress warning 20208 : 'long double' is treated as 'double' in device code
       set(KOKKOS_DEVICE_SPECIFIC_WARNINGS ${KOKKOS_DEVICE_SPECIFIC_WARNINGS} -Xcudafe
-                                          --diag_suppress=20208)
+                                            --diag_suppress=20208)
+
+      if(KALYPSSO_CORE_CUDA_LINEINFO)
+        set(KOKKOS_DEVICE_SPECIFIC_WARNINGS ${KOKKOS_DEVICE_SPECIFIC_WARNINGS} -lineinfo)
+      endif(KALYPSSO_CORE_CUDA_LINEINFO)
+
+      if(KALYPSSO_CORE_CUDA_RES_USAGE)
+        set(KOKKOS_DEVICE_SPECIFIC_WARNINGS ${KOKKOS_DEVICE_SPECIFIC_WARNINGS} -res-usage)
+      endif(KALYPSSO_CORE_CUDA_RES_USAGE)
+
     else()
       set(GCC_CXX_WARNINGS ${GCC_C_WARNINGS} -Wold-style-cast # warn for c-style casts
       )
