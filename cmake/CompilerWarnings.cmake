@@ -154,7 +154,7 @@ function(
       # don't do anything about -Wold-style-cast as it generates too many false positive warnings
       # suppress warning 20208 : 'long double' is treated as 'double' in device code
       set(KOKKOS_DEVICE_SPECIFIC_WARNINGS ${KOKKOS_DEVICE_SPECIFIC_WARNINGS} -Xcudafe
-                                            --diag_suppress=20208)
+                                          --diag_suppress=20208)
 
       if(KALYPSSO_CORE_CUDA_LINEINFO)
         set(KOKKOS_DEVICE_SPECIFIC_WARNINGS ${KOKKOS_DEVICE_SPECIFIC_WARNINGS} -lineinfo)
