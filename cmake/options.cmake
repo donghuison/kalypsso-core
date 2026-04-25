@@ -24,6 +24,13 @@ option(KALYPSSO_CORE_DISABLE_DEPRECATED_WARNINGS
 option(KALYPSSO_CORE_USE_CPPTRACE "Use cpptrace to print a stack trace upon failure (default OFF)."
        OFF)
 
+# the following option are only active when Kokkos::Cuda backend is selected, they are useful for
+# Nvidia profiling tools NCU
+option(KALYPSSO_CORE_CUDA_LINEINFO
+       "When Cuda backend is enabled, add compile flag \"-lineinfo\" (default OFF)" OFF)
+option(KALYPSSO_CORE_CUDA_RES_USAGE
+       "When Cuda backend is enabled, add compile flag \"-res_usage\" (default OFF)" OFF)
+
 # option (USE_MOOD "build MOOD numerical schemes" OFF)
 
 # option (USE_SDM "build Spectral Difference Method numerical schemes" OFF)
