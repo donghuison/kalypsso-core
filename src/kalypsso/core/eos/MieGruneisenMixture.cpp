@@ -30,7 +30,7 @@ MieGruneisenMixture<device_t>::MieGruneisenMixture(ConfigMap const & config_map)
 // =====================================================================
 // =====================================================================
 template <typename device_t>
-real_t
+KOKKOS_FUNCTION real_t
 MieGruneisenMixture<device_t>::mixture_gruneisen_param(real_t phi0,
                                                        real_t phi1,
                                                        real_t phi_rho0,
@@ -59,7 +59,7 @@ MieGruneisenMixture<device_t>::mixture_gruneisen_param(real_t phi0,
 // =====================================================================
 // =====================================================================
 template <typename device_t>
-real_t
+KOKKOS_FUNCTION real_t
 MieGruneisenMixture<device_t>::mixture_pressure(real_t rho,
                                                 real_t eint,
                                                 real_t phi0,
@@ -99,7 +99,7 @@ MieGruneisenMixture<device_t>::mixture_pressure(real_t rho,
 // =====================================================================
 // =====================================================================
 template <typename device_t>
-real_t
+KOKKOS_FUNCTION real_t
 MieGruneisenMixture<device_t>::mixture_volumic_eint([[maybe_unused]] real_t rho,
                                                     real_t                  pressure,
                                                     real_t                  phi0,
@@ -140,7 +140,7 @@ MieGruneisenMixture<device_t>::mixture_volumic_eint([[maybe_unused]] real_t rho,
 // =====================================================================
 // =====================================================================
 template <typename device_t>
-real_t
+KOKKOS_FUNCTION real_t
 MieGruneisenMixture<device_t>::mixture_specific_eint(real_t rho,
                                                      real_t pressure,
                                                      real_t phi0,
@@ -154,7 +154,7 @@ MieGruneisenMixture<device_t>::mixture_specific_eint(real_t rho,
 // =====================================================================
 // =====================================================================
 template <typename device_t>
-real_t
+KOKKOS_FUNCTION real_t
 MieGruneisenMixture<device_t>::mixture_sound_speed_square(real_t rho,
                                                           real_t pressure,
                                                           real_t phi0,
@@ -199,7 +199,7 @@ MieGruneisenMixture<device_t>::mixture_sound_speed_square(real_t rho,
 // =====================================================================
 // =====================================================================
 template <typename device_t>
-real_t
+KOKKOS_FUNCTION real_t
 MieGruneisenMixture<device_t>::mixture_sound_speed(real_t rho,
                                                    real_t pressure,
                                                    real_t phi0,
@@ -215,7 +215,7 @@ MieGruneisenMixture<device_t>::mixture_sound_speed(real_t rho,
 // =====================================================================
 // =====================================================================
 template <typename device_t>
-real_t
+KOKKOS_FUNCTION real_t
 MieGruneisenMixture<device_t>::mixture_bulk_modulus(real_t rho,
                                                     real_t pressure,
                                                     real_t phi0,
