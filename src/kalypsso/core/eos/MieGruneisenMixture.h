@@ -105,12 +105,25 @@ public:
    * \param[in] alpha_rho0 partial density of material 0
    * \param[in] alpha_rho1 partial density of material 1
    */
-  KOKKOS_FUNCTION
+  KOKKOS_INLINE_FUNCTION
   real_t
   mixture_gruneisen_param(real_t alpha0, real_t alpha1, real_t alpha_rho0, real_t alpha_rho1) const;
 
   /**
-   * Compute mixture pressure.
+   * Compute mixture Gruneisen parameter (any number of materials).
+   *
+   * Input parameter are Kokkos view's sized upon the number of materials
+   *
+   * \param[in] alpha array of volume fractions
+   * \param[in] alpha_rho array of partial densities
+   */
+  KOKKOS_INLINE_FUNCTION
+  real_t
+  mixture_gruneisen_param(Kokkos::View<real_t *, device_t> const & alpha,
+                          Kokkos::View<real_t *, device_t> const & alpha_rho) const;
+
+  /**
+   * Compute mixture pressure (two materials).
    *
    * To be used only when there are two materials
    *
@@ -121,7 +134,7 @@ public:
    * \param[in] alpha_rho0 partial density of material 0
    * \param[in] alpha_rho1 partial density of material 1
    */
-  KOKKOS_FUNCTION
+  KOKKOS_INLINE_FUNCTION
   real_t
   mixture_pressure(real_t rho,
                    real_t eint,
@@ -131,9 +144,23 @@ public:
                    real_t alpha_rho1) const;
 
   /**
-   * Compute mixture volumic internal energy.
+   * Compute mixture pressure (any number of materials).
    *
-   * To be used only when there are two materials
+   *
+   * \param[in] rho mixture density
+   * \param[in] eint mixture specific internal energy
+   * \param[in] alpha array of volume fractions
+   * \param[in] alpha_rho array of partial densities
+   */
+  KOKKOS_INLINE_FUNCTION
+  real_t
+  mixture_pressure(real_t                                   rho,
+                   real_t                                   eint,
+                   Kokkos::View<real_t *, device_t> const & alpha,
+                   Kokkos::View<real_t *, device_t> const & alpha_rho) const;
+
+  /**
+   * Compute mixture volumic internal energy (two materials).
    *
    * \param[in] rho mixture density
    * \param[in] pressure mixture pressure
@@ -142,7 +169,7 @@ public:
    * \param[in] alpha_rho0 partial density of material 0
    * \param[in] alpha_rho1 partial density of material 1
    */
-  KOKKOS_FUNCTION
+  KOKKOS_INLINE_FUNCTION
   real_t
   mixture_volumic_eint(real_t rho,
                        real_t pressure,
@@ -152,9 +179,22 @@ public:
                        real_t alpha_rho1) const;
 
   /**
-   * Compute mixture specific internal energy.
+   * Compute mixture volumic internal energy (any number of materials).
    *
-   * To be used only when there are two materials
+   * \param[in] rho mixture density
+   * \param[in] pressure mixture pressure
+   * \param[in] alpha array of volume fractions
+   * \param[in] alpha_rho array of partial densities
+   */
+  KOKKOS_INLINE_FUNCTION
+  real_t
+  mixture_volumic_eint(real_t                                   rho,
+                       real_t                                   pressure,
+                       Kokkos::View<real_t *, device_t> const & alpha,
+                       Kokkos::View<real_t *, device_t> const & alpha_rho) const;
+
+  /**
+   * Compute mixture specific internal energy (two materials).
    *
    * \param[in] rho mixture density
    * \param[in] pressure mixture pressure
@@ -163,7 +203,7 @@ public:
    * \param[in] alpha_rho0 partial density of material 0
    * \param[in] alpha_rho1 partial density of material 1
    */
-  KOKKOS_FUNCTION
+  KOKKOS_INLINE_FUNCTION
   real_t
   mixture_specific_eint(real_t rho,
                         real_t pressure,
@@ -172,11 +212,24 @@ public:
                         real_t alpha_rho0,
                         real_t alpha_rho1) const;
 
+  /**
+   * Compute mixture specific internal energy (any number of materials).
+   *
+   * \param[in] rho mixture density
+   * \param[in] pressure mixture pressure
+   * \param[in] alpha array of volume fractions
+   * \param[in] alpha_rho array of partial densities
+   */
+  KOKKOS_INLINE_FUNCTION
+  real_t
+  mixture_specific_eint(real_t                                   rho,
+                        real_t                                   pressure,
+                        Kokkos::View<real_t *, device_t> const & alpha,
+                        Kokkos::View<real_t *, device_t> const & alpha_rho) const;
+
 
   /**
-   * Compute mixture squared speed of sound.
-   *
-   * To be used only when there are two materials
+   * Compute mixture squared speed of sound (two materials).
    *
    * \param[in] rho mixture density
    * \param[in] eint mixture internal energy
@@ -185,7 +238,7 @@ public:
    * \param[in] alpha_rho0 partial density of material 0
    * \param[in] alpha_rho1 partial density of material 1
    */
-  KOKKOS_FUNCTION
+  KOKKOS_INLINE_FUNCTION
   real_t
   mixture_sound_speed_square(real_t rho,
                              real_t pressure,
@@ -195,9 +248,22 @@ public:
                              real_t alpha_rho1) const;
 
   /**
-   * Compute mixture speed of sound.
+   * Compute mixture squared speed of sound (any number of materials).
    *
-   * To be used only when there are two materials
+   * \param[in] rho mixture density
+   * \param[in] eint mixture internal energy
+   * \param[in] alpha array of volume fractions
+   * \param[in] alpha_rho array of partial densities
+   */
+  KOKKOS_INLINE_FUNCTION
+  real_t
+  mixture_sound_speed_square(real_t                                   rho,
+                             real_t                                   pressure,
+                             Kokkos::View<real_t *, device_t> const & alpha,
+                             Kokkos::View<real_t *, device_t> const & alpha_rho) const;
+
+  /**
+   * Compute mixture speed of sound (two materials).
    *
    * \param[in] rho mixture density
    * \param[in] eint mixture internal energy
@@ -206,7 +272,7 @@ public:
    * \param[in] alpha_rho0 partial density of material 0
    * \param[in] alpha_rho1 partial density of material 1
    */
-  KOKKOS_FUNCTION
+  KOKKOS_INLINE_FUNCTION
   real_t
   mixture_sound_speed(real_t rho,
                       real_t pressure,
@@ -216,9 +282,24 @@ public:
                       real_t alpha_rho1) const;
 
   /**
-   * Compute mixture isentropic bulk modulus.
+   * Compute mixture speed of sound (any number of materials).
+   *
+   * \param[in] rho mixture density
+   * \param[in] eint mixture internal energy
+   * \param[in] alpha array of volume fractions
+   * \param[in] alpha_rho array of partial densities
    */
-  KOKKOS_FUNCTION
+  KOKKOS_INLINE_FUNCTION
+  real_t
+  mixture_sound_speed(real_t                                   rho,
+                      real_t                                   pressure,
+                      Kokkos::View<real_t *, device_t> const & alpha,
+                      Kokkos::View<real_t *, device_t> const & alpha_rho) const;
+
+  /**
+   * Compute mixture isentropic bulk modulus (two materials).
+   */
+  KOKKOS_INLINE_FUNCTION
   real_t
   mixture_bulk_modulus(real_t rho,
                        real_t pressure,
@@ -226,6 +307,16 @@ public:
                        real_t alpha1,
                        real_t alpha_rho0,
                        real_t alpha_rho1) const;
+
+  /**
+   * Compute mixture isentropic bulk modulus (any number of materials).
+   */
+  KOKKOS_INLINE_FUNCTION
+  real_t
+  mixture_bulk_modulus(real_t                                   rho,
+                       real_t                                   pressure,
+                       Kokkos::View<real_t *, device_t> const & alpha,
+                       Kokkos::View<real_t *, device_t> const & alpha_rho) const;
 
 }; // class MieGruneisenMixture
 
