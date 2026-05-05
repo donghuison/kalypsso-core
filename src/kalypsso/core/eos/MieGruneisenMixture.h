@@ -232,7 +232,7 @@ public:
    * Compute mixture squared speed of sound (two materials).
    *
    * \param[in] rho mixture density
-   * \param[in] eint mixture internal energy
+   * \param[in] pressure mixture pressure
    * \param[in] alpha0 volume fraction of material 0
    * \param[in] alpha1 volume fraction of material 1
    * \param[in] alpha_rho0 partial density of material 0
@@ -251,7 +251,7 @@ public:
    * Compute mixture squared speed of sound (any number of materials).
    *
    * \param[in] rho mixture density
-   * \param[in] eint mixture internal energy
+   * \param[in] pressure mixture pressure
    * \param[in] alpha array of volume fractions
    * \param[in] alpha_rho array of partial densities
    */
@@ -266,7 +266,7 @@ public:
    * Compute mixture speed of sound (two materials).
    *
    * \param[in] rho mixture density
-   * \param[in] eint mixture internal energy
+   * \param[in] pressure mixture pressure
    * \param[in] alpha0 volume fraction of material 0
    * \param[in] alpha1 volume fraction of material 1
    * \param[in] alpha_rho0 partial density of material 0
@@ -285,7 +285,7 @@ public:
    * Compute mixture speed of sound (any number of materials).
    *
    * \param[in] rho mixture density
-   * \param[in] eint mixture internal energy
+   * \param[in] pressure mixture pressure
    * \param[in] alpha array of volume fractions
    * \param[in] alpha_rho array of partial densities
    */
@@ -298,6 +298,13 @@ public:
 
   /**
    * Compute mixture isentropic bulk modulus (two materials).
+   *
+   * \param[in] rho mixture density
+   * \param[in] pressure mixture pressure
+   * \param[in] alpha0 volume fraction of material 0
+   * \param[in] alpha1 volume fraction of material 1
+   * \param[in] alpha_rho0 partial density of material 0
+   * \param[in] alpha_rho1 partial density of material 1
    */
   KOKKOS_INLINE_FUNCTION
   real_t
@@ -310,6 +317,11 @@ public:
 
   /**
    * Compute mixture isentropic bulk modulus (any number of materials).
+   *
+   * \param[in] rho mixture density
+   * \param[in] pressure mixture pressure
+   * \param[in] alpha array of volume fractions
+   * \param[in] alpha_rho array of partial densities
    */
   KOKKOS_INLINE_FUNCTION
   real_t
