@@ -472,6 +472,30 @@ coord_to_cellindex(coord_t<dim> const &         coord,
 // =======================================================
 // =======================================================
 /**
+ * output : extract integer coordinates
+ * input  : index to a given cell inside a block of data of size (bx,by,bz)
+ */
+KOKKOS_INLINE_FUNCTION int32_t
+ijk_to_cellindex(int32_t i, int32_t j, block_size_t<2> const & bSizes)
+{
+  return i + bSizes[IX] * j;
+} // ijk_to_cellindex
+
+// =======================================================
+// =======================================================
+/**
+ * output : extract integer coordinates
+ * input  : index to a given cell inside a block of data of size (bx,by,bz)
+ */
+KOKKOS_INLINE_FUNCTION int32_t
+ijk_to_cellindex(int32_t i, int32_t j, int32_t k, block_size_t<3> const & bSizes)
+{
+  return i + bSizes[IX] * j + bSizes[IX] * bSizes[IY] * k;
+} // ijk_to_cellindex
+
+// =======================================================
+// =======================================================
+/**
  * \param[in] cellindex is index to a given cell inside a block of data of size (bx,by,bz)
  * \param[in] shift specify a displacement inside current block
  * \param[in] bSizes specify the block sizes
