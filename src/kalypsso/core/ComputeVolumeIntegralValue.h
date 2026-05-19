@@ -108,6 +108,113 @@ private:
 extern template class ComputeVolumeIntegralValue<2, kalypsso::DefaultDevice>;
 extern template class ComputeVolumeIntegralValue<3, kalypsso::DefaultDevice>;
 
+// ================================================================================================
+// ================================================================================================
+
+/**
+ * \class ComputeVolumeIntegralValueMultiMat
+ * \brief Functor wrapper that computes a volume integral value over a data array.
+ *
+ * \tparam dim The dimension of the problem (must be 2 or 3).
+ * \tparam device_t On which Kokkos device to run the underlying functor.
+ *
+ */
+template <size_t dim, typename device_t>
+class ComputeVolumeIntegralValueMultiMat
+{
+public:
+  using OrchardKeys = typename orchard_key_base_t<device_t>::view_t;
+
+  /**
+   * \brief Computes a volume integral value over a data array.
+   *
+   * Volume integral value is simply defined as the sum of all values of an array (can be a
+   * DataArrayBlock), but it could be any other integral value if needed.
+   *
+   * \param data Values array of the simulation.
+   * \param mat_pres Material presence view.
+   * \param start_octant The first octant to compute.
+   * \param end_octant The last octant to compute, excluded.
+   * \param keys Orchard keys.
+   * \param mat_num The global material number.
+   * \param nvars_per_mat The number of variables per material.
+   * \param var_index The variable to sum on.
+   * \param config_map Inputted config map.
+   * \param par_env Parallel environment.
+   *
+   * \note par_env is only used when the number of MPI processes is strictly larger than 1.
+   *
+   * \returns The volume integral value.
+   */
+  static real_t
+  apply(const DataArrayBlockMultiVar<dim, real_t, device_t> & data,
+        const MaterialPresenceView<device_t> &                mat_pres,
+        const int32_t                                         start_octant,
+        const int32_t                                         end_octant,
+        const OrchardKeys &                                   keys,
+        const int32_t                                         mat_num,
+        const int32_t                                         nvars_per_mat,
+        const int32_t                                         var_index,
+        const ConfigMap &                                     config_map,
+        [[maybe_unused]] const ParallelEnv &                  par_env);
+
+  /**
+   * \brief Kokkos kernel.
+   *
+   * \param i_global The global index of the cell.
+   * \param total The summed total.
+   */
+  KOKKOS_FUNCTION void
+  operator()(const int32_t i_global, real_t & total) const;
+
+private:
+  //! Kokkos execution space
+  using ExecutionSpace = typename device_t::execution_space;
+
+  /**
+   * \brief Constructor.
+   *
+   * \param data Values array of the simulation.
+   * \param mat_pres Material presence view.
+   * \param keys Orchard keys.
+   * \param mat_num The global material number.
+   * \param nvars_per_mat The number of variables per material.
+   * \param var_index The variable to sum on.
+   * \param config_map Inputted config map.
+   */
+  ComputeVolumeIntegralValueMultiMat(const DataArrayBlockMultiVar<dim, real_t, device_t> & data,
+                                     const MaterialPresenceView<device_t> &                mat_pres,
+                                     const OrchardKeys &                                   keys,
+                                     const int32_t                                         mat_num,
+                                     const int32_t     nvars_per_mat,
+                                     const int32_t     var_index,
+                                     const ConfigMap & config_map);
+
+  //! Some input data
+  DataArrayBlockMultiVar<dim, real_t, device_t> m_data;
+
+  //! The material presence data
+  MaterialPresenceView<device_t> m_mat_pres;
+
+  //! The Orchard keys
+  OrchardKeys m_keys;
+
+  //! The material number
+  int32_t m_mat_num;
+
+  //! The number of variables per material.
+  int32_t m_nvars_per_mat;
+
+  //! The variable index to use for integral value
+  int32_t m_var_index;
+
+  //! Tree scaling factor (used for computing local metric)
+  real_t m_scaling_factor;
+};
+
+extern template class ComputeVolumeIntegralValueMultiMat<2, kalypsso::DefaultDevice>;
+extern template class ComputeVolumeIntegralValueMultiMat<3, kalypsso::DefaultDevice>;
+
 } // namespace core
 
 } // namespace kalypsso
