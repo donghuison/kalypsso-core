@@ -45,9 +45,8 @@ using NormalNeighbors = Kokkos::Array<real_t, dim == 2 ? 9 : 27>;
  * \brief Computes the interface normal vector from a size-3 stencil (9 cells in 2D or 27 in 3D)
  * using (Parker-)Youngs method.
  *
- * \param f The volume fraction values of current cell and its neighbors listed in a X - Y - Z order
- * \param dxyz Vector of cell sizes
- * \param ex Optional extra arguments that influence the values over faces or edges
+ * \param[in] f The volume fraction values of current cell and its neighbors listed in a X-Y-Z order
+ * \param[in] dxyz Vector of cell sizes
  *
  * +------+------+------+
  * |      |      |      |
@@ -84,8 +83,7 @@ https://www.researchgate.net/publication/245345562_An_interface_tracking_method_
  *
  * - Interface reconstruction with least-square fit and split Eulerian–Lagrangian advection, R.
  *   Scardovelli and S. Zaleski, INTERNATIONAL JOURNAL FOR NUMERICAL METHODS IN FLUIDS Int. J.
-Numer.
- *   Meth. Fluids 2003; 41:251–274.  https://doi.org/10.1002/fld.431
+ *   Numer.  Meth. Fluids 2003; 41:251–274.  https://doi.org/10.1002/fld.431
  *   See section 2.1
  */
 template <size_t dim>
@@ -160,10 +158,18 @@ KOKKOS_FUNCTION Kokkos::Array<real_t, dim>
   }
 
   return normal;
-}
+
+} // ypoungs_normal
 
 /**
  * \brief Computes the Youngs normal from inside a DataArrayBlock-like object
+ *
+ * \param[in] f A DataArrayBlock-like object
+ * \param[in] ijk A dim-array of cell coordinate inside the block it belongs to
+ * \param[in] i_var The variable index (usually identifying the material volume fraction)
+ * \param[in] i_oct The octant id
+ * \param[in] dxyz Vector of cell sizes
+ *
  */
 template <typename DAB, size_t dim>
 KOKKOS_FUNCTION Kokkos::Array<real_t, dim>
@@ -206,6 +212,14 @@ KOKKOS_FUNCTION Kokkos::Array<real_t, dim>
 /**
  * \brief Computes the Youngs normal from inside a DataArrayBlock-like object (in-place
  * implementation).
+ *
+ * \param[in] f A DataArrayBlock-like object
+ * \param[in] ijk A dim-array of cell coordinate inside the block it belongs to
+ * \param[in] i_var The variable index (usually identifying the material volume fraction)
+ * \param[in] i_oct The octant id
+ * \param[in] dxyz Vector of cell sizes
+ *
+ * \note Same function as youngs_normal but don't use extra array for collecting neighbor values
  */
 template <typename DAB, size_t dim>
 KOKKOS_FUNCTION Kokkos::Array<real_t, dim>
