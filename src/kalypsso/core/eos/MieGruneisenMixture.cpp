@@ -30,26 +30,26 @@ MieGruneisenMixture<device_t>::MieGruneisenMixture(ConfigMap const & config_map)
 // =====================================================================
 // =====================================================================
 template <typename device_t>
-real_t
-MieGruneisenMixture<device_t>::mixture_gruneisen_param(real_t phi0,
-                                                       real_t phi1,
-                                                       real_t phi_rho0,
-                                                       real_t phi_rho1) const
+KOKKOS_INLINE_FUNCTION real_t
+MieGruneisenMixture<device_t>::mixture_gruneisen_param(real_t alpha0,
+                                                       real_t alpha1,
+                                                       real_t alpha_rho0,
+                                                       real_t alpha_rho1) const
 {
   auto tmp = ZERO_F;
 
   // material 0
-  if (phi0 > LOW_PHI)
+  if (alpha0 > LOW_ALPHA)
   {
-    const auto Gamma0 = m_eos_array.material_gruneisen_param(0, phi_rho0 / phi0);
-    tmp += phi0 / Gamma0;
+    const auto Gamma0 = m_eos_array.material_gruneisen_param(0, alpha_rho0 / alpha0);
+    tmp += alpha0 / Gamma0;
   }
 
   // material 1
-  if (phi1 > LOW_PHI)
+  if (alpha1 > LOW_ALPHA)
   {
-    const auto Gamma1 = m_eos_array.material_gruneisen_param(1, phi_rho1 / phi1);
-    tmp += phi1 / Gamma1;
+    const auto Gamma1 = m_eos_array.material_gruneisen_param(1, alpha_rho1 / alpha1);
+    tmp += alpha1 / Gamma1;
   }
 
   return ONE_F / tmp;
@@ -59,13 +59,38 @@ MieGruneisenMixture<device_t>::mixture_gruneisen_param(real_t phi0,
 // =====================================================================
 // =====================================================================
 template <typename device_t>
-real_t
+KOKKOS_INLINE_FUNCTION real_t
+MieGruneisenMixture<device_t>::mixture_gruneisen_param(
+  Kokkos::View<real_t *, device_t> const & alpha,
+  Kokkos::View<real_t *, device_t> const & alpha_rho) const
+{
+  KOKKOS_ASSERT(alpha.extent(0) == alpha_rho.extent(0) && "Input views must have the same size");
+
+  auto tmp = ZERO_F;
+  for (size_t i_mat = 0; i_mat < alpha.extent(0); ++i_mat)
+  {
+    if (alpha(i_mat) > LOW_ALPHA)
+    {
+      const auto Gamma =
+        m_eos_array.material_gruneisen_param(i_mat, alpha_rho(i_mat) / alpha(i_mat));
+      tmp += alpha(i_mat) / Gamma;
+    }
+  }
+
+  return ONE_F / tmp;
+
+} // MieGruneisenMixture<device_t>::mixture_gruneisen_param
+
+// =====================================================================
+// =====================================================================
+template <typename device_t>
+KOKKOS_INLINE_FUNCTION real_t
 MieGruneisenMixture<device_t>::mixture_pressure(real_t rho,
                                                 real_t eint,
-                                                real_t phi0,
-                                                real_t phi1,
-                                                real_t phi_rho0,
-                                                real_t phi_rho1) const
+                                                real_t alpha0,
+                                                real_t alpha1,
+                                                real_t alpha_rho0,
+                                                real_t alpha_rho1) const
 {
   // use eq (34) from Wallis et all, A unified diffuse interface method for the interaction
   // of rigid bodies with elastoplastic solids and multi-phase mixtures.
@@ -75,21 +100,21 @@ MieGruneisenMixture<device_t>::mixture_pressure(real_t rho,
   auto tmp = ZERO_F;
 
   // material 0
-  const auto rho0 = phi0 > LOW_PHI ? phi_rho0 / phi0 : ONE_F;
+  const auto rho0 = alpha0 > LOW_ALPHA ? alpha_rho0 / alpha0 : ONE_F;
   const auto eint0 = m_eos_array.material_specific_eint_ref(0, rho0);
   const auto pref0 = m_eos_array.material_pressure_ref(0, rho0);
   const auto Gamma0 = m_eos_array.material_gruneisen_param(0, rho0);
-  tmp += phi0 > LOW_PHI ? phi_rho0 * eint0 - phi0 * pref0 / Gamma0 : ZERO_F;
+  tmp += alpha0 > LOW_ALPHA ? alpha_rho0 * eint0 - alpha0 * pref0 / Gamma0 : ZERO_F;
 
   // material 1
-  const auto rho1 = phi1 > LOW_PHI ? phi_rho1 / phi1 : ONE_F;
+  const auto rho1 = alpha1 > LOW_ALPHA ? alpha_rho1 / alpha1 : ONE_F;
   const auto eint1 = m_eos_array.material_specific_eint_ref(1, rho1);
   const auto pref1 = m_eos_array.material_pressure_ref(1, rho1);
   const auto Gamma1 = m_eos_array.material_gruneisen_param(1, rho1);
-  tmp += phi1 > LOW_PHI ? phi_rho1 * eint1 - phi1 * pref1 / Gamma1 : ZERO_F;
+  tmp += alpha1 > LOW_ALPHA ? alpha_rho1 * eint1 - alpha1 * pref1 / Gamma1 : ZERO_F;
 
   const auto pressure_mix =
-    mixture_gruneisen_param(phi0, phi1, phi_rho0, phi_rho1) * (rho * eint - tmp);
+    mixture_gruneisen_param(alpha0, alpha1, alpha_rho0, alpha_rho1) * (rho * eint - tmp);
 
   // return pressure_mix;
   return pressure_mix < m_small_p ? m_small_p : pressure_mix;
@@ -99,13 +124,50 @@ MieGruneisenMixture<device_t>::mixture_pressure(real_t rho,
 // =====================================================================
 // =====================================================================
 template <typename device_t>
-real_t
+KOKKOS_INLINE_FUNCTION real_t
+MieGruneisenMixture<device_t>::mixture_pressure(
+  real_t                                   rho,
+  real_t                                   eint,
+  Kokkos::View<real_t *, device_t> const & alpha,
+  Kokkos::View<real_t *, device_t> const & alpha_rho) const
+{
+  // use eq (34) from Wallis et all, A unified diffuse interface method for the interaction
+  // of rigid bodies with elastoplastic solids and multi-phase mixtures.
+  // J. Appl. Phys. 131, 104901 (2022)
+  // https://doi.org/10.1063/5.0079970
+
+  KOKKOS_ASSERT(alpha.extent(0) == alpha_rho.extent(0) && "Input views must have the same size");
+
+  auto tmp = ZERO_F;
+
+  for (size_t i_mat = 0; i_mat < alpha.extent(0); ++i_mat)
+  {
+    const auto rho_mat = alpha(i_mat) > LOW_ALPHA ? alpha_rho(i_mat) / alpha(i_mat) : ONE_F;
+    const auto eint_mat = m_eos_array.material_specific_eint_ref(i_mat, rho_mat);
+    const auto pref_mat = m_eos_array.material_pressure_ref(i_mat, rho_mat);
+    const auto Gamma_mat = m_eos_array.material_gruneisen_param(i_mat, rho_mat);
+    tmp += alpha(i_mat) > LOW_ALPHA
+             ? alpha_rho(i_mat) * eint_mat - alpha(i_mat) * pref_mat / Gamma_mat
+             : ZERO_F;
+  }
+
+  const auto pressure_mix = mixture_gruneisen_param(alpha, alpha_rho) * (rho * eint - tmp);
+
+  // return pressure_mix;
+  return pressure_mix < m_small_p ? m_small_p : pressure_mix;
+
+} // MieGruneisenMixture<device_t>::mixture_pressure
+
+// =====================================================================
+// =====================================================================
+template <typename device_t>
+KOKKOS_INLINE_FUNCTION real_t
 MieGruneisenMixture<device_t>::mixture_volumic_eint([[maybe_unused]] real_t rho,
                                                     real_t                  pressure,
-                                                    real_t                  phi0,
-                                                    real_t                  phi1,
-                                                    real_t                  phi_rho0,
-                                                    real_t                  phi_rho1) const
+                                                    real_t                  alpha0,
+                                                    real_t                  alpha1,
+                                                    real_t                  alpha_rho0,
+                                                    real_t                  alpha_rho1) const
 {
   // use eq (33) from Wallis et all, A unified diffuse interface method for the interaction
   // of rigid bodies with elastoplastic solids and multi-phase mixtures.
@@ -115,22 +177,22 @@ MieGruneisenMixture<device_t>::mixture_volumic_eint([[maybe_unused]] real_t rho,
   real_t eint = ZERO_F;
 
   // material 0
-  if (phi0 > LOW_PHI)
+  if (alpha0 > LOW_ALPHA)
   {
-    const auto rho0 = phi_rho0 / phi0;
+    const auto rho0 = alpha_rho0 / alpha0;
     const auto eint0 = m_eos_array.material_specific_eint_ref(0, rho0);
-    eint += phi_rho0 * eint0;
-    eint += phi0 * (pressure - m_eos_array.material_pressure_ref(0, rho0)) /
+    eint += alpha_rho0 * eint0;
+    eint += alpha0 * (pressure - m_eos_array.material_pressure_ref(0, rho0)) /
             m_eos_array.material_gruneisen_param(0, rho0);
   }
 
   // material 1
-  if (phi1 > LOW_PHI)
+  if (alpha1 > LOW_ALPHA)
   {
-    const auto rho1 = phi_rho1 / phi1;
+    const auto rho1 = alpha_rho1 / alpha1;
     const auto eint1 = m_eos_array.material_specific_eint_ref(1, rho1);
-    eint += phi_rho1 * eint1;
-    eint += phi1 * (pressure - m_eos_array.material_pressure_ref(1, rho1)) /
+    eint += alpha_rho1 * eint1;
+    eint += alpha1 * (pressure - m_eos_array.material_pressure_ref(1, rho1)) /
             m_eos_array.material_gruneisen_param(1, rho1);
   }
   return eint;
@@ -140,27 +202,73 @@ MieGruneisenMixture<device_t>::mixture_volumic_eint([[maybe_unused]] real_t rho,
 // =====================================================================
 // =====================================================================
 template <typename device_t>
-real_t
+KOKKOS_INLINE_FUNCTION real_t
+MieGruneisenMixture<device_t>::mixture_volumic_eint(
+  [[maybe_unused]] real_t                  rho,
+  real_t                                   pressure,
+  Kokkos::View<real_t *, device_t> const & alpha,
+  Kokkos::View<real_t *, device_t> const & alpha_rho) const
+{
+  // use eq (33) from Wallis et all, A unified diffuse interface method for the interaction
+  // of rigid bodies with elastoplastic solids and multi-phase mixtures.
+  // J. Appl. Phys. 131, 104901 (2022)
+  // https://doi.org/10.1063/5.0079970
+
+  real_t eint = ZERO_F;
+
+  for (size_t i_mat = 0; i_mat < alpha.extent(0); ++i_mat)
+  {
+    if (alpha(i_mat) > LOW_ALPHA)
+    {
+      const auto rho_mat = alpha_rho(i_mat) / alpha(i_mat);
+      const auto eint_mat = m_eos_array.material_specific_eint_ref(i_mat, rho_mat);
+      eint += alpha_rho(i_mat) * eint_mat;
+      eint += alpha(i_mat) * (pressure - m_eos_array.material_pressure_ref(i_mat, rho_mat)) /
+              m_eos_array.material_gruneisen_param(i_mat, rho_mat);
+    }
+  }
+
+  return eint;
+
+} // MieGruneisenMixture<device_t>::mixture_volumic_eint
+
+// =====================================================================
+// =====================================================================
+template <typename device_t>
+KOKKOS_INLINE_FUNCTION real_t
 MieGruneisenMixture<device_t>::mixture_specific_eint(real_t rho,
                                                      real_t pressure,
-                                                     real_t phi0,
-                                                     real_t phi1,
-                                                     real_t phi_rho0,
-                                                     real_t phi_rho1) const
+                                                     real_t alpha0,
+                                                     real_t alpha1,
+                                                     real_t alpha_rho0,
+                                                     real_t alpha_rho1) const
 {
-  return mixture_volumic_eint(rho, pressure, phi0, phi1, phi_rho0, phi_rho1) / rho;
+  return mixture_volumic_eint(rho, pressure, alpha0, alpha1, alpha_rho0, alpha_rho1) / rho;
 } // MieGruneisenMixture<device_t>::mixture_specific_eint
 
 // =====================================================================
 // =====================================================================
 template <typename device_t>
-real_t
+KOKKOS_INLINE_FUNCTION real_t
+MieGruneisenMixture<device_t>::mixture_specific_eint(
+  real_t                                   rho,
+  real_t                                   pressure,
+  Kokkos::View<real_t *, device_t> const & alpha,
+  Kokkos::View<real_t *, device_t> const & alpha_rho) const
+{
+  return mixture_volumic_eint(rho, pressure, alpha, alpha_rho) / rho;
+} // MieGruneisenMixture<device_t>::mixture_specific_eint
+
+// =====================================================================
+// =====================================================================
+template <typename device_t>
+KOKKOS_INLINE_FUNCTION real_t
 MieGruneisenMixture<device_t>::mixture_sound_speed_square(real_t rho,
                                                           real_t pressure,
-                                                          real_t phi0,
-                                                          real_t phi1,
-                                                          real_t phi_rho0,
-                                                          real_t phi_rho1) const
+                                                          real_t alpha0,
+                                                          real_t alpha1,
+                                                          real_t alpha_rho0,
+                                                          real_t alpha_rho1) const
 {
   // use eq (31) from Wallis et all, A unified diffuse interface method for the interaction
   // of rigid bodies with elastoplastic solids and multi-phase mixtures.
@@ -177,54 +285,122 @@ MieGruneisenMixture<device_t>::mixture_sound_speed_square(real_t rho,
   auto tmp = ZERO_F;
 
   // material 0
-  if (phi0 > LOW_PHI)
+  if (alpha0 > LOW_ALPHA)
   {
-    const auto rho0 = phi_rho0 / phi0;
-    tmp += phi0 * m_eos_array.material_bulk_modulus(0, pressure, rho0) /
+    const auto rho0 = alpha_rho0 / alpha0;
+    tmp += alpha0 * m_eos_array.material_bulk_modulus(0, pressure, rho0) /
            m_eos_array.material_gruneisen_param(0, rho0);
   }
 
   // material 1
-  if (phi1 > LOW_PHI)
+  if (alpha1 > LOW_ALPHA)
   {
-    const auto rho1 = phi_rho1 / phi1;
-    tmp += phi1 * m_eos_array.material_bulk_modulus(1, pressure, rho1) /
+    const auto rho1 = alpha_rho1 / alpha1;
+    tmp += alpha1 * m_eos_array.material_bulk_modulus(1, pressure, rho1) /
            m_eos_array.material_gruneisen_param(1, rho1);
   }
 
-  return mixture_gruneisen_param(phi0, phi1, phi_rho0, phi_rho1) / rho * tmp;
+  return mixture_gruneisen_param(alpha0, alpha1, alpha_rho0, alpha_rho1) / rho * tmp;
 
 } // MieGruneisenMixture<device_t>::mixture_sound_speed_square
 
 // =====================================================================
 // =====================================================================
 template <typename device_t>
-real_t
+KOKKOS_INLINE_FUNCTION real_t
+MieGruneisenMixture<device_t>::mixture_sound_speed_square(
+  real_t                                   rho,
+  real_t                                   pressure,
+  Kokkos::View<real_t *, device_t> const & alpha,
+  Kokkos::View<real_t *, device_t> const & alpha_rho) const
+{
+  // use eq (31) from Wallis et all, A unified diffuse interface method for the interaction
+  // of rigid bodies with elastoplastic solids and multi-phase mixtures.
+  // J. Appl. Phys. 131, 104901 (2022)
+  // https://doi.org/10.1063/5.0079970
+  //
+  // Important note:
+  // - The formula from this article is slightly erroneous (additional volume fraction at
+  // numerator shouldn't exist)
+  // - the formula is slightly rewritten to treat bulk modulus (rho*c^2) as whole; the formula is
+  // much more numerically stable as it avoid using rho0 and rho1 which may be ill-defined in
+  // regions where volume fraction is very small
+
+  auto tmp = ZERO_F;
+
+  for (size_t i_mat = 0; i_mat < alpha.extent(0); ++i_mat)
+  {
+    if (alpha(i_mat) > LOW_ALPHA)
+    {
+      const auto rho_mat = alpha_rho(i_mat) / alpha(i_mat);
+      tmp += alpha(i_mat) * m_eos_array.material_bulk_modulus(i_mat, pressure, rho_mat) /
+             m_eos_array.material_gruneisen_param(i_mat, rho_mat);
+    }
+  }
+
+  return mixture_gruneisen_param(alpha, alpha_rho) / rho * tmp;
+
+} // MieGruneisenMixture<device_t>::mixture_sound_speed_square
+
+// =====================================================================
+// =====================================================================
+template <typename device_t>
+KOKKOS_INLINE_FUNCTION real_t
 MieGruneisenMixture<device_t>::mixture_sound_speed(real_t rho,
                                                    real_t pressure,
-                                                   real_t phi0,
-                                                   real_t phi1,
-                                                   real_t phi_rho0,
-                                                   real_t phi_rho1) const
+                                                   real_t alpha0,
+                                                   real_t alpha1,
+                                                   real_t alpha_rho0,
+                                                   real_t alpha_rho1) const
 {
 
-  return sqrt(mixture_sound_speed_square(rho, pressure, phi0, phi1, phi_rho0, phi_rho1));
+  return sqrt(mixture_sound_speed_square(rho, pressure, alpha0, alpha1, alpha_rho0, alpha_rho1));
 
 } // MieGruneisenMixture<device_t>::mixture_sound_speed
 
 // =====================================================================
 // =====================================================================
 template <typename device_t>
-real_t
-MieGruneisenMixture<device_t>::mixture_bulk_modulus(real_t rho,
-                                                    real_t pressure,
-                                                    real_t phi0,
-                                                    real_t phi1,
-                                                    real_t phi_rho0,
-                                                    real_t phi_rho1) const
+KOKKOS_INLINE_FUNCTION real_t
+MieGruneisenMixture<device_t>::mixture_sound_speed(
+  real_t                                   rho,
+  real_t                                   pressure,
+  Kokkos::View<real_t *, device_t> const & alpha,
+  Kokkos::View<real_t *, device_t> const & alpha_rho) const
 {
 
-  return rho * mixture_sound_speed_square(rho, pressure, phi0, phi1, phi_rho0, phi_rho1);
+  return sqrt(mixture_sound_speed_square(rho, pressure, alpha, alpha_rho));
+
+} // MieGruneisenMixture<device_t>::mixture_sound_speed
+
+// =====================================================================
+// =====================================================================
+template <typename device_t>
+KOKKOS_INLINE_FUNCTION real_t
+MieGruneisenMixture<device_t>::mixture_bulk_modulus(real_t rho,
+                                                    real_t pressure,
+                                                    real_t alpha0,
+                                                    real_t alpha1,
+                                                    real_t alpha_rho0,
+                                                    real_t alpha_rho1) const
+{
+
+  return rho * mixture_sound_speed_square(rho, pressure, alpha0, alpha1, alpha_rho0, alpha_rho1);
+
+} // MieGruneisenMixture<device_t>::mixture_bulk_modulus
+
+// =====================================================================
+// =====================================================================
+template <typename device_t>
+KOKKOS_INLINE_FUNCTION real_t
+MieGruneisenMixture<device_t>::mixture_bulk_modulus(
+  real_t                                   rho,
+  real_t                                   pressure,
+  Kokkos::View<real_t *, device_t> const & alpha,
+  Kokkos::View<real_t *, device_t> const & alpha_rho) const
+{
+
+  return rho * mixture_sound_speed_square(rho, pressure, alpha, alpha_rho);
 
 } // MieGruneisenMixture<device_t>::mixture_bulk_modulus
 

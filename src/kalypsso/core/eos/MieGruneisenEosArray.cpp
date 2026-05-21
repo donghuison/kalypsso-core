@@ -185,8 +185,8 @@ MieGruneisenEosArray<device_t>::MieGruneisenEosArray(ConfigMap const & config_ma
 // =====================================================================
 // =====================================================================
 template <typename device_t>
-real_t
-MieGruneisenEosArray<device_t>::material_gruneisen_param(int i_mat, real_t rho) const
+KOKKOS_FUNCTION real_t
+MieGruneisenEosArray<device_t>::material_gruneisen_param(size_t i_mat, real_t rho) const
 {
   // get EOS type
   const auto eos_type = MG_EOS_TYPE::_from_integral_unchecked(m_material_eos_type(i_mat));
@@ -230,8 +230,8 @@ MieGruneisenEosArray<device_t>::material_gruneisen_param(int i_mat, real_t rho) 
 // =====================================================================
 // =====================================================================
 template <typename device_t>
-real_t
-MieGruneisenEosArray<device_t>::material_specific_eint_ref(int i_mat, real_t rho) const
+KOKKOS_FUNCTION real_t
+MieGruneisenEosArray<device_t>::material_specific_eint_ref(size_t i_mat, real_t rho) const
 {
   // get EOS type
   const auto eos_type = MG_EOS_TYPE::_from_integral_unchecked(m_material_eos_type(i_mat));
@@ -275,8 +275,8 @@ MieGruneisenEosArray<device_t>::material_specific_eint_ref(int i_mat, real_t rho
 // =====================================================================
 // =====================================================================
 template <typename device_t>
-real_t
-MieGruneisenEosArray<device_t>::material_pressure_ref(int i_mat, real_t rho) const
+KOKKOS_FUNCTION real_t
+MieGruneisenEosArray<device_t>::material_pressure_ref(size_t i_mat, real_t rho) const
 {
   // get EOS type
   const auto eos_type = MG_EOS_TYPE::_from_integral_unchecked(m_material_eos_type(i_mat));
@@ -320,8 +320,8 @@ MieGruneisenEosArray<device_t>::material_pressure_ref(int i_mat, real_t rho) con
 // =====================================================================
 // =====================================================================
 template <typename device_t>
-real_t
-MieGruneisenEosArray<device_t>::material_sound_speed_square(int    i_mat,
+KOKKOS_FUNCTION real_t
+MieGruneisenEosArray<device_t>::material_sound_speed_square(size_t i_mat,
                                                             real_t pressure,
                                                             real_t rho) const
 {
@@ -367,8 +367,10 @@ MieGruneisenEosArray<device_t>::material_sound_speed_square(int    i_mat,
 // =====================================================================
 // =====================================================================
 template <typename device_t>
-real_t
-MieGruneisenEosArray<device_t>::material_bulk_modulus(int i_mat, real_t pressure, real_t rho) const
+KOKKOS_FUNCTION real_t
+MieGruneisenEosArray<device_t>::material_bulk_modulus(size_t i_mat,
+                                                      real_t pressure,
+                                                      real_t rho) const
 {
 
   // const auto c2 = material_sound_speed_square(i_mat, pressure, rho);
@@ -416,8 +418,8 @@ MieGruneisenEosArray<device_t>::material_bulk_modulus(int i_mat, real_t pressure
 // =====================================================================
 // =====================================================================
 template <typename device_t>
-real_t
-MieGruneisenEosArray<device_t>::material_specific_eint_from_pressure(int    i_mat,
+KOKKOS_FUNCTION real_t
+MieGruneisenEosArray<device_t>::material_specific_eint_from_pressure(size_t i_mat,
                                                                      real_t pressure,
                                                                      real_t rho) const
 {
@@ -464,8 +466,8 @@ MieGruneisenEosArray<device_t>::material_specific_eint_from_pressure(int    i_ma
 // =====================================================================
 // =====================================================================
 template <typename device_t>
-real_t
-MieGruneisenEosArray<device_t>::material_pressure_from_specific_eint(int    i_mat,
+KOKKOS_FUNCTION real_t
+MieGruneisenEosArray<device_t>::material_pressure_from_specific_eint(size_t i_mat,
                                                                      real_t eint_specific,
                                                                      real_t rho) const
 {
