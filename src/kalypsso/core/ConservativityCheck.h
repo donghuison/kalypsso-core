@@ -54,7 +54,7 @@ public:
    */
   ConservativityCheck()
     : m_reference_values()
-    , m_test_values(){};
+    , m_test_values() {};
 
   /**
    * \brief Register a reference or test value.
@@ -77,6 +77,34 @@ public:
                  const ConfigMap &                             config_map,
                  const ParallelEnv &                           par_env,
                  bool                                          is_reference);
+
+  /**
+   * \brief Register a reference or test value.
+   *
+   * \param data Values array of the simulation.
+   * \param mat_pres Material presence view.
+   * \param start_octant The first octant to compute.
+   * \param end_octant The last octant to compute, excluded.
+   * \param keys Orchard keys.
+   * \param mat_num The global material number.
+   * \param nvars_per_mat The number of variables per material.
+   * \param var_index The variable to sum on.
+   * \param config_map Inputted config map.
+   * \param is_reference Set to true if you want to register a reference value else a test value.
+   */
+  void
+  register_value(const DataArrayBlockMultiVar<dim, real_t, device_t> & data,
+                 const MaterialPresenceView<device_t> &                mat_pres,
+                 const int32_t                                         start_octant,
+                 const int32_t                                         end_octant,
+                 const OrchardKeys &                                   keys,
+                 const int32_t                                         mat_num,
+                 const int32_t                                         nvars_per_mat,
+                 const int32_t                                         var_index,
+                 const std::string                                     var_name,
+                 const ConfigMap &                                     config_map,
+                 const ParallelEnv &                                   par_env,
+                 bool                                                  is_reference);
 
   /**
    * \brief Print conservativity check report.

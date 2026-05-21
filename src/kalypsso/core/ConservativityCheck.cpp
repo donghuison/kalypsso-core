@@ -47,6 +47,40 @@ ConservativityCheck<dim, device_t>::register_value(
 // ================================================================================================
 template <size_t dim, typename device_t>
 void
+ConservativityCheck<dim, device_t>::register_value(
+  const DataArrayBlockMultiVar<dim, real_t, device_t> & data,
+  const MaterialPresenceView<device_t> &                mat_pres,
+  const int32_t                                         start_octant,
+  const int32_t                                         end_octant,
+  const OrchardKeys &                                   keys,
+  const int32_t                                         mat_num,
+  const int32_t                                         nvars_per_mat,
+  const int32_t                                         var_index,
+  const std::string                                     var_name,
+  const ConfigMap &                                     config_map,
+  const ParallelEnv &                                   par_env,
+  bool                                                  is_reference)
+{
+
+  const auto value = ComputeVolumeIntegralValueMultiMat<dim, device_t>::apply(data,
+                                                                              mat_pres,
+                                                                              start_octant,
+                                                                              end_octant,
+                                                                              keys,
+                                                                              mat_num,
+                                                                              nvars_per_mat,
+                                                                              var_index,
+                                                                              config_map,
+                                                                              par_env);
+
+  insert_or_update_value(var_name, value, is_reference);
+
+} // ConservativityCheck<dim, device_t>::register_value
+
+// ================================================================================================
+// ================================================================================================
+template <size_t dim, typename device_t>
+void
 ConservativityCheck<dim, device_t>::print_report(const ParallelEnv & par_env) const
 {
   if (m_reference_values.size() > 0)
