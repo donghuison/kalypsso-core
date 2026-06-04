@@ -23,8 +23,8 @@ By carefully choosing the reference pressure and reference internal energy, many
 | Tail | $`P=(\gamma-1)\rho e-\gamma (b-a)`$ | $`\gamma-1`$ | $`-\gamma (b-a)`$ | 0 |
 | van der Waals | $`P=\frac{\gamma-1}{1-b\rho}(\rho e+a\rho^2)-a\rho^2`$ | $`\frac{\gamma-1}{1-b\rho}`$ | $`-a\rho^2`$ | $`-a\rho`$ |
 | | | | | |
-| Cochran-Chan |  | $`\Gamma_0`$ | $`AV^{-\epsilon_1}-BV^{-\epsilon_2}`$ | $`\frac{-A}{\rho_0(1-\epsilon_1)}\left[ V^{1-\epsilon_1}-1\right] + \frac{B}{\rho_0(1-\epsilon_2)}\left[ V^{1-\epsilon_2}-1\right]-e_0`$ |
-| JWL | | $`\omega`$ | $`A e^{-R_1 V} + B e^{-R_2 V}`$ | $`\frac{A}{\rho_0 R_1} e^{-R_1 V} + \frac{B}{\rho_0 R_2} e^{-R_2 V} - e_0`$ |
+| Cochran-Chan |  | $`\Gamma_0`$ | $`A(\rho_0/\rho)^{-\epsilon_1}-B(\rho_0/\rho)^{-\epsilon_2}`$ | $`\frac{-A}{\rho_0(1-\epsilon_1)}\left[ (\rho_0/\rho)^{1-\epsilon_1}-1\right] + \frac{B}{\rho_0(1-\epsilon_2)}\left[ (\rho_0/\rho)^{1-\epsilon_2}-1\right] + e_0`$ |
+| JWL | | $`\omega`$ | $`A e^{-R_1 \rho_0/\rho} + B e^{-R_2 \rho_0/\rho}`$ | $`\frac{A}{\rho_0 R_1} e^{-R_1 \rho_0/\rho} + \frac{B}{\rho_0 R_2} e^{-R_2 \rho_0/\rho} + e_0`$ |
 | Shock-wave | | $`\Gamma_0 (\frac{\rho_0}{\rho})^\alpha`$ | $`p_0+\frac{c_0^2 (1/\rho_0-1/\rho)}{\left[ 1/\rho - s(1/\rho_0-1/\rho)\right]^2}`$ | $`e_0+\frac{1}{2}\left[ P_{\text{ref}}(\rho)+P_0\right](\frac{1}{\rho_0}-\frac{1}{\rho})`$ |
 
 

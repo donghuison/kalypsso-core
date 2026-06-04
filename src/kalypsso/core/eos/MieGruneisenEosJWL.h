@@ -5,9 +5,9 @@
 /**
  * \file MieGruneisenEosJWL.h
  *
- * Mie-Gruneisen form of the Cochran-Chan equation of state.
+ * Mie-Gruneisen form of the Jones-Wilkins-Lee equation of state (for gaseous explosives).
  *
- * A Mie-Gruneisen type Eos can be written as
+ * A Mie-Gruneisen type Eos that can be written as
  *
  * \f$ p(\rho,e_{\text{int}}) = \rho \Gamma(\rho) \left[ e_{\text{int}} - e_{\text{\ref}}\right] +
  * p_{\text{ref}} \f$
@@ -15,7 +15,10 @@
  * \f$ e_{\text{int}}(\rho,p) = e_{\text{\ref}}(\rho) + \frac{1}{\rho \Gamma(\rho)}\left[
  * p-p_{\text{ref}}(\rho)\right] \f$
  *
- * where \f$ p_{\text{ref}}(\rho) = 0\f$ and \f$ e_{\text{\ref}}(\rho) = 0\f$
+ * where \f$ p_{\text{ref}}(\rho) = A_1 \exp\left( -\frac{R_1\rho_0}{\rho}\right) + A_2 \exp\left(
+ * -\frac{R_2\rho_0}{\rho}\right)\f$ and \f$ e_{\text{\ref}}(\rho) = \frac{A_1}{R_1\rho_0}
+ * \exp\left( -\frac{R_1\rho_0}{\rho}\right) + \frac{A_2}{R_2\rho_0} \exp\left(
+ * -\frac{R_2\rho_0}{\rho}\right)+e_0\f$
  *
  * - A method for compressible multimaterial flows with condensed phase explosive detonation and
  * airblast on unstructured grids, M.A. Price et al, Computers & Fluids, Volume 111, 2015, Pages
@@ -23,6 +26,9 @@
  * - A Fluid-Mixture Type Algorithm for Compressible Multicomponent Flow with Mie–Grüneisen Equation
  * of State, Keh-Ming Shyue, Journal of Computational Physics, Volume 171, Issue 2, 2001,Pages
  * 678-707. https://doi.org/10.1006/jcph.2001.6801
+ * - High-order finite volume method for solving compressible multicomponent flows with
+ * Mie–Grüneisen equation of state, Feng Zheng and Jianxian Qiu, Computers & Fluids, Volume 284,
+ * 2024, 106424. https://doi.org/10.1016/j.compfluid.2024.106424
  *
  */
 #ifndef KALYPSSO_CORE_EOS_MIE_GRUNEISEN_EOS_JWL_H_
