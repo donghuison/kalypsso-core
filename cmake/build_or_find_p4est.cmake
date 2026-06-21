@@ -100,8 +100,9 @@ if(KALYPSSO_CORE_BUILD_P4EST)
   add_library(sc SHARED IMPORTED GLOBAL)
   add_dependencies(sc p4est_external)
 
-  set_target_properties(sc PROPERTIES IMPORTED_LOCATION "${P4EST_LIBDIR}/libsc${CMAKE_SHARED_LIBRARY_SUFFIX}"
-                                      INTERFACE_INCLUDE_DIRECTORIES ${P4EST_INCLUDEDIR})
+  set_target_properties(
+    sc PROPERTIES IMPORTED_LOCATION "${P4EST_LIBDIR}/libsc${CMAKE_SHARED_LIBRARY_SUFFIX}"
+                  INTERFACE_INCLUDE_DIRECTORIES ${P4EST_INCLUDEDIR})
 
   # create library alias
   add_library(SC::SC ALIAS sc)
