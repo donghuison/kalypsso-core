@@ -55,8 +55,9 @@ if(KALYPSSO_CORE_BUILD_CNPY)
   add_library(cnpy SHARED IMPORTED GLOBAL)
   add_dependencies(cnpy cnpy_external)
 
-  set_target_properties(cnpy PROPERTIES IMPORTED_LOCATION "${CNPY_LIBDIR}/libcnpy.so"
-                                        INTERFACE_INCLUDE_DIRECTORIES ${CNPY_INCLUDEDIR})
+  set_target_properties(
+    cnpy PROPERTIES IMPORTED_LOCATION "${CNPY_LIBDIR}/libcnpy${CMAKE_SHARED_LIBRARY_SUFFIX}"
+                    INTERFACE_INCLUDE_DIRECTORIES ${CNPY_INCLUDEDIR})
 
   # create library alias
   add_library(cnpy::cnpy ALIAS cnpy)
