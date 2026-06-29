@@ -54,26 +54,30 @@ int
 ConfigMap::parse_error()
 {
   return m_parse_error;
-}
+} // ConfigMap::parse_error
 
 // =======================================================
 // =======================================================
 std::string
 ConfigMap::getString(std::string section, std::string name, std::string default_value) const
 {
+
   const std::string key = makeKey(section, name);
   // for const correctness use method at instead of operator[]
   return m_values.count(key) ? m_values.at(key) : default_value;
-}
+
+} // ConfigMap::getString
 
 // =======================================================
 // =======================================================
 void
 ConfigMap::setString(std::string section, std::string name, std::string value)
 {
+
   std::string key = makeKey(section, name);
   m_values[key] = value;
-}
+
+} // ConfigMap::setString
 
 // =======================================================
 // =======================================================
@@ -96,18 +100,21 @@ ConfigMap::getStringVector(std::string              section,
   }
 
   return default_value;
-}
+
+} // ConfigMap::getStringVector
 
 // =======================================================
 // =======================================================
 void
 ConfigMap::setStringVector(std::string section, std::string name, std::vector<std::string> value)
 {
+
   std::string key = makeKey(section, name);
   auto        dash_fold = [](std::string a, std::string b) { return std::move(a) + ',' + b; };
 
   m_values[key] = std::accumulate(std::next(value.begin()), value.end(), value[0], dash_fold);
-}
+
+} // ConfigMap::setStringVector
 
 // =======================================================
 // =======================================================
@@ -115,17 +122,25 @@ int
 ConfigMap::getInteger(std::string section, std::string name, int default_value) const
 {
   std::string  valstr = getString(section, name, "");
-  const char * value = valstr.c_str();
-  char *       end;
+  const char * c_str = valstr.c_str();
+  char *       end_ptr;
+
   // This parses "1234" (decimal) and also "0x4D2" (hex)
-  int n = static_cast<int>(strtol(value, &end, 0));
-  if (errno == ERANGE)
+  int n = static_cast<int>(strtol(c_str, &end_ptr, 0));
+
+  if (end_ptr == c_str)
+  {
+    return default_value;
+  }
+  else if (*end_ptr != '\0')
   {
     std::cerr << "Unable to convert string \"" << valstr << "\" to integer" << "\n";
     Kokkos::abort("Invalid config map.");
   }
-  return end > value ? n : default_value;
-}
+
+  return n;
+
+} // ConfigMap::getInteger
 
 // =======================================================
 // =======================================================
@@ -136,7 +151,8 @@ ConfigMap::setInteger(std::string section, std::string name, int value)
   ss << value;
 
   setString(section, name, ss.str());
-}
+
+} // ConfigMap::setInteger
 
 // =======================================================
 // =======================================================
@@ -156,20 +172,27 @@ ConfigMap::getIntegerVector(std::string      section,
   result.reserve(str_vec.size());
   std::transform(
     str_vec.begin(), str_vec.end(), std::back_inserter(result), [&default_value](const auto & str) {
-      const char * value = str.c_str();
-      char *       end;
+      const char * c_str = str.c_str();
+      char *       end_ptr;
+
       // This parses "1234" (decimal) and also "0x4D2" (hex)
-      int n = static_cast<int>(strtol(value, &end, 0));
-      if (errno == ERANGE)
+      int n = static_cast<int>(strtol(c_str, &end_ptr, 0));
+
+      if (end_ptr == c_str)
+      {
+        return default_value[0];
+      }
+      else if (*end_ptr != '\0')
       {
         std::cerr << "Unable to convert string \"" << str << "\" to integer" << "\n";
         Kokkos::abort("Invalid config map.");
       }
-      return end > value ? n : default_value[0];
+      return n;
     });
 
   return result;
-}
+
+} // ConfigMap::getIntegerVector
 
 // =======================================================
 // =======================================================
@@ -185,7 +208,8 @@ ConfigMap::setIntegerVector(std::string section, std::string name, std::vector<i
   });
 
   setStringVector(section, name, strVector);
-}
+
+} // ConfigMap::setIntegerVector
 
 // =======================================================
 // =======================================================
@@ -193,17 +217,25 @@ int64_t
 ConfigMap::getInteger64(std::string section, std::string name, int64_t default_value) const
 {
   std::string  valstr = getString(section, name, "");
-  const char * value = valstr.c_str();
-  char *       end;
+  const char * c_str = valstr.c_str();
+  char *       end_ptr;
+
   // This parses "1234" (decimal) and also "0x4D2" (hex)
-  int64_t n = static_cast<int64_t>(strtoll(value, &end, 0));
-  if (errno == ERANGE)
+  int64_t n = static_cast<int64_t>(strtoll(c_str, &end_ptr, 0));
+
+  if (end_ptr == c_str)
+  {
+    return default_value;
+  }
+  else if (*end_ptr != '\0')
   {
     std::cerr << "Unable to convert string \"" << valstr << "\" to integer (64 bits)" << "\n";
     Kokkos::abort("Invalid config map.");
   }
-  return end > value ? n : default_value;
-}
+
+  return n;
+
+} // ConfigMap::getInteger64
 
 // =======================================================
 // =======================================================
@@ -214,7 +246,8 @@ ConfigMap::setInteger64(std::string section, std::string name, int64_t value)
   ss << value;
 
   setString(section, name, ss.str());
-}
+
+} // ConfigMap::setInteger64
 
 // =======================================================
 // =======================================================
@@ -234,20 +267,27 @@ ConfigMap::getInteger64Vector(std::string          section,
   result.reserve(str_vec.size());
   std::transform(
     str_vec.begin(), str_vec.end(), std::back_inserter(result), [&default_value](const auto & str) {
-      const char * value = str.c_str();
-      char *       end;
+      const char * c_str = str.c_str();
+      char *       end_ptr;
+
       // This parses "1234" (decimal) and also "0x4D2" (hex)
-      int64_t n = static_cast<int64_t>(strtoll(value, &end, 0));
-      if (errno == ERANGE)
+      int64_t n = static_cast<int64_t>(strtoll(c_str, &end_ptr, 0));
+
+      if (end_ptr == c_str)
+      {
+        return default_value[0];
+      }
+      else if (*end_ptr != '\0')
       {
         std::cerr << "Unable to convert string \"" << str << "\" to 64 bits integer" << "\n";
         Kokkos::abort("Invalid config map.");
       }
-      return end > value ? n : default_value[0];
+      return end_ptr > c_str ? n : default_value[0];
     });
 
   return result;
-}
+
+} // ConfigMap::getInteger64Vector
 
 // =======================================================
 // =======================================================
@@ -263,7 +303,8 @@ ConfigMap::setInteger64Vector(std::string section, std::string name, std::vector
   });
 
   setStringVector(section, name, strVector);
-}
+
+} // ConfigMap::setInteger64Vector
 
 // =======================================================
 // =======================================================
@@ -271,16 +312,23 @@ float
 ConfigMap::getFloat(std::string section, std::string name, float default_value) const
 {
   std::string  valstr = getString(section, name, "");
-  const char * value = valstr.c_str();
-  char *       end;
-  // This parses "1234" (decimal) and also "0x4D2" (hex)
-  float valFloat = strtof(value, &end);
-  if (errno == ERANGE)
+  const char * c_str = valstr.c_str();
+  char *       end_ptr;
+
+  const auto valFloat = strtof(c_str, &end_ptr);
+
+  if (end_ptr == c_str)
+  {
+    return default_value;
+  }
+  else if (*end_ptr != '\0')
   {
     std::cerr << "Unable to convert string \"" << valstr << "\" to float" << "\n";
     Kokkos::abort("Invalid config map.");
   }
-  return end > value ? valFloat : default_value;
+
+  return valFloat;
+
 } // ConfigMap::getFloat
 
 // =======================================================
@@ -314,20 +362,26 @@ ConfigMap::getFloatVector(std::string        section,
   result.reserve(str_vec.size());
   std::transform(
     str_vec.begin(), str_vec.end(), std::back_inserter(result), [&default_value](const auto & str) {
-      const char * value = str.c_str();
-      char *       end;
-      // This parses "1234" (decimal) and also "0x4D2" (hex)
-      float valf = strtof(value, &end);
-      if (errno == ERANGE)
+      const char * c_str = str.c_str();
+      char *       end_ptr;
+
+      const auto valf = strtof(c_str, &end_ptr);
+
+      if (end_ptr == c_str)
+      {
+        return default_value[0];
+      }
+      else if (*end_ptr != '\0')
       {
         std::cerr << "Unable to convert string \"" << str << "\" to float" << "\n";
         Kokkos::abort("Invalid config map.");
       }
-      return end > value ? valf : default_value[0];
+      return valf;
     });
 
   return result;
-}
+
+} // ConfigMap::getFloatVector
 
 // =======================================================
 // =======================================================
@@ -343,7 +397,8 @@ ConfigMap::setFloatVector(std::string section, std::string name, std::vector<flo
   });
 
   setStringVector(section, name, strVector);
-}
+
+} // ConfigMap::setFloatVector
 
 // =======================================================
 // =======================================================
@@ -351,16 +406,23 @@ double
 ConfigMap::getDouble(std::string section, std::string name, double default_value) const
 {
   std::string  valstr = getString(section, name, "");
-  const char * value = valstr.c_str();
-  char *       end;
-  // This parses "1234" (decimal) and also "0x4D2" (hex)
-  double valDouble = strtod(value, &end);
-  if (errno == ERANGE)
+  const char * c_str = valstr.c_str();
+  char *       end_ptr;
+
+  const auto valDouble = strtod(c_str, &end_ptr);
+
+  if (end_ptr == c_str)
+  {
+    return default_value;
+  }
+  else if (*end_ptr != '\0')
   {
     std::cerr << "Unable to convert string \"" << valstr << "\" to double" << "\n";
     Kokkos::abort("Invalid config map.");
   }
-  return end > value ? valDouble : default_value;
+
+  return valDouble;
+
 } // ConfigMap::getDouble
 
 // =======================================================
@@ -394,20 +456,26 @@ ConfigMap::getDoubleVector(std::string         section,
   result.reserve(str_vec.size());
   std::transform(
     str_vec.begin(), str_vec.end(), std::back_inserter(result), [&default_value](const auto & str) {
-      const char * value = str.c_str();
-      char *       end;
-      // This parses "1234" (decimal) and also "0x4D2" (hex)
-      double valf = strtod(value, &end);
-      if (errno == ERANGE)
+      const char * c_str = str.c_str();
+      char *       end_ptr;
+
+      double valf = strtod(c_str, &end_ptr);
+
+      if (end_ptr == c_str)
+      {
+        return default_value[0];
+      }
+      else if (*end_ptr != '\0')
       {
         std::cerr << "Unable to convert string \"" << str << "\" to double" << "\n";
         Kokkos::abort("Invalid config map.");
       }
-      return end > value ? valf : default_value[0];
+      return valf;
     });
 
   return result;
-}
+
+} // ConfigMap::getDoubleVector
 
 // =======================================================
 // =======================================================
@@ -423,9 +491,11 @@ ConfigMap::setDoubleVector(std::string section, std::string name, std::vector<do
   });
 
   setStringVector(section, name, strVector);
-}
+
+} // ConfigMap::setDoubleVector
 
 #ifdef KALYPSSO_CORE_USE_DOUBLE
+
 // =======================================================
 // =======================================================
 double
@@ -433,6 +503,7 @@ ConfigMap::getReal(std::string section, std::string name, double default_value) 
 {
   return getDouble(section, name, default_value);
 } // ConfigMap::getReal
+
 // =======================================================
 // =======================================================
 std::vector<double>
@@ -442,7 +513,9 @@ ConfigMap::getRealVector(std::string         section,
 {
   return getDoubleVector(section, name, default_value);
 } // ConfigMap::getRealVector
+
 #else
+
 // =======================================================
 // =======================================================
 float
@@ -450,6 +523,7 @@ ConfigMap::getReal(std::string section, std::string name, float default_value) c
 {
   return getFloat(section, name, default_value);
 } // ConfigMap::getReal
+
 // =======================================================
 // =======================================================
 std::vector<float>
@@ -459,6 +533,7 @@ ConfigMap::getRealVector(std::string        section,
 {
   return getFloatVector(section, name, default_value);
 } // ConfigMap::getRealVector
+
 #endif // KALYPSSO_CORE_USE_DOUBLE
 
 // =======================================================
@@ -528,7 +603,8 @@ ConfigMap::getBoolVector(std::string       section,
                  });
 
   return result;
-}
+
+} // ConfigMap::getBoolVector
 
 // =======================================================
 // =======================================================
@@ -544,7 +620,8 @@ ConfigMap::setBoolVector(std::string section, std::string name, std::vector<bool
   });
 
   setStringVector(section, name, strVector);
-}
+
+} // ConfigMap::setBoolVector
 
 // =======================================================
 // =======================================================
@@ -565,11 +642,14 @@ std::string
 ConfigMap::makeKey(std::string section, std::string name)
 {
   std::string key = section + "." + name;
+
   // Convert to lower case to make lookups case-insensitive
   std::transform(
     key.begin(), key.end(), key.begin(), [](unsigned char c) { return std::tolower(c); });
+
   return key;
-}
+
+} // ConfigMap::makeKey
 
 // =======================================================
 // =======================================================
@@ -583,8 +663,10 @@ ConfigMap::valueHandler(void * user, const char * section, const char * name, co
   if (reader->m_values[key].size() > 0)
     reader->m_values[key] += "\n";
   reader->m_values[key] += value ? value : "";
+
   return 1;
-}
+
+} // ConfigMap::valueHandler
 
 // =======================================================
 // =======================================================
