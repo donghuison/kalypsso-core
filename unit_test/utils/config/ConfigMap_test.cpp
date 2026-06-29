@@ -22,7 +22,7 @@ TEST(kalypsso_shared_ConfigMap_test, config_map_test)
   ini_data << "solver_name=godunov ; solver name" << std::endl;
   ini_data << "materials=air,water r22, copper ; solver material name" << std::endl;
   ini_data << "some_ints= 34 , 2,-2 9,0 ; some integers" << std::endl;
-  ini_data << "some_floats= -1.0f 6.5 3.2e5 1.34e-4 ; some floats" << std::endl;
+  ini_data << "some_floats= -1.0, 6.5 3.2e5 1.34e-4 ; some floats" << std::endl;
   ini_data << "some_bools= yes no, 1, 0 true, false ; some boolean values" << std::endl;
   ini_data << "other_ints= 34 , 2, -2 ; some integers" << std::endl;
   ini_data << "drinks=water,milk,chocolate " << std::endl;
