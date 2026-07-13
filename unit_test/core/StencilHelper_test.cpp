@@ -18,6 +18,7 @@
 #include <kalypsso/core/real_type.h>
 
 #include <kalypsso/core/StencilHelper.h>
+#include <kalypsso/core/NeighborCellsAcrossFace.h>
 
 #include <test_common/InitialAMRSetup.h>
 #include <test_common/DataWriter.h>
@@ -232,6 +233,46 @@ run_test(const ParallelEnv & par_env, const ConfigMap & config_map)
 
       EXPECT_NEAR(average, average_true, 1e-14)
         << "checking compute_siblings_average failed - iOct=" << iOct;
+    }
+
+    // check siblings sum using for_each_neighbor_cell_across_face
+    {
+      uint32_t iOct_cur = 1247;   // level = 4
+      uint32_t iOct_neigh = 1260; // level = 5
+
+      const uint32_t       i = 3;
+      const uint32_t       j = 1;
+      const uint32_t       cell_index = i + 4 * j;
+      auto const           coords_cell = cellindex_to_coord<dim>(cell_index, block_sizes);
+      const auto           key_cur = orchard_keys_device(iOct_cur);
+      const CellLocation_t cell_loc{ coords_cell, key_cur, iOct_cur, false };
+      const auto           ivar = 0;
+
+      const uint32_t i_n = 0;
+      const uint32_t j_n = 2;
+
+      auto siblings_sum = ZERO_F;
+
+      for_each_neighbor_cell_across_face(
+        stencil_helper,
+        cell_loc,
+        conformal_status(iOct_cur),
+        Face::XMAX,
+        [&](CellLocation_t const & cell_loc_neigh, NeighborCellAcrossFaceInfo<dim> const & info) {
+          auto const & in = cell_loc_neigh.ijk[IX];
+          auto const & jn = cell_loc_neigh.ijk[IY];
+          siblings_sum += userdata_block_cell(in, jn, ivar, cell_loc_neigh.iOct) *
+                          userdata_block_cell(in, jn, ivar, cell_loc_neigh.iOct);
+        });
+
+      const auto siblings_sum_true = (userdata_block_cell(i_n + 0, j_n + 0, ivar, iOct_neigh) *
+                                        userdata_block_cell(i_n + 0, j_n + 0, ivar, iOct_neigh) +
+                                      userdata_block_cell(i_n + 0, j_n + 1, ivar, iOct_neigh) *
+                                        userdata_block_cell(i_n + 0, j_n + 1, ivar, iOct_neigh));
+
+
+      EXPECT_NEAR(siblings_sum, siblings_sum_true, 1e-14)
+        << "checking compute_siblings_sum failed - iOct=" << iOct_cur;
     }
 
     // checking compute_face_siblings_sum - cell data

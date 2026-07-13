@@ -65,6 +65,14 @@ struct conformal_face_status_t<2> : public BitFieldInteger<uint8_t>
   DECLARE_CASTED_FIELD(face_ymin, 4, 2, uint8_t)
   DECLARE_CASTED_FIELD(face_ymax, 6, 2, uint8_t)
 
+  /**
+   * set face conformal status.
+   *
+   * \param[in] face face id (Face::XMIN, ...)
+   * \param[in] face_states face conformal status
+   *            (conformal_neighbor_status::NEIGHBOR_IS_AT_SAME_LEVEL, ... )
+   * \param[in,out] conformal_status conformal status to update
+   */
   KOKKOS_INLINE_FUNCTION static void
   set_status(Face::face_t const & face, uint8_t face_status, status_t & conformal_status)
   {
@@ -77,6 +85,31 @@ struct conformal_face_status_t<2> : public BitFieldInteger<uint8_t>
     else if (face == Face::YMAX)
       set_face_ymax(conformal_status, face_status);
   } // set_status
+
+  /**
+   * return face conformal status associated to a given face.
+   *
+   * \param[in] face face id (Face::XMIN, ...)
+   * \param[in] conformal_status conformal status to read
+   */
+  KOKKOS_INLINE_FUNCTION static auto
+  get_status(Face::face_t const & face,
+             status_t const &     conformal_status) -> conformal_neighbor_status::neighbor_status
+  {
+    using neigh_status_t = conformal_neighbor_status::neighbor_status;
+
+    if (face == Face::XMIN)
+      return static_cast<neigh_status_t>(face_xmin(conformal_status));
+    else if (face == Face::XMAX)
+      return static_cast<neigh_status_t>(face_xmax(conformal_status));
+    else if (face == Face::YMIN)
+      return static_cast<neigh_status_t>(face_ymin(conformal_status));
+    else if (face == Face::YMAX)
+      return static_cast<neigh_status_t>(face_ymax(conformal_status));
+
+    return conformal_neighbor_status::NEIGHBOR_IS_UNAVAILABLE;
+
+  } // get_status
 
   KOKKOS_INLINE_FUNCTION static bool
   is_face_neighbor_finer(Face::face_t const & face, status_t const & conformal_status)
@@ -125,6 +158,14 @@ struct conformal_face_status_t<3> : public BitFieldInteger<uint16_t>
   DECLARE_CASTED_FIELD(face_zmin, 8, 2, uint8_t)
   DECLARE_CASTED_FIELD(face_zmax, 10, 2, uint8_t)
 
+  /**
+   * set face conformal status.
+   *
+   * \param[in] face face id (Face::XMIN, ...)
+   * \param[in] face_states face conformal status
+   *            (conformal_neighbor_status::NEIGHBOR_IS_AT_SAME_LEVEL, ... )
+   * \param[in,out] conformal_status conformal status to update
+   */
   KOKKOS_INLINE_FUNCTION static void
   set_status(Face::face_t const & face, uint8_t face_status, status_t & conformal_status)
   {
@@ -141,6 +182,35 @@ struct conformal_face_status_t<3> : public BitFieldInteger<uint16_t>
     else if (face == Face::ZMAX)
       set_face_zmax(conformal_status, face_status);
   } // set_status
+
+  /**
+   * return face conformal status associated to a given face.
+   *
+   * \param[in] face face id (Face::XMIN, ...)
+   * \param[in] conformal_status conformal status to read
+   */
+  KOKKOS_INLINE_FUNCTION static auto
+  get_status(Face::face_t const & face,
+             status_t const &     conformal_status) -> conformal_neighbor_status::neighbor_status
+  {
+    using neigh_status_t = conformal_neighbor_status::neighbor_status;
+
+    if (face == Face::XMIN)
+      return static_cast<neigh_status_t>(face_xmin(conformal_status));
+    else if (face == Face::XMAX)
+      return static_cast<neigh_status_t>(face_xmax(conformal_status));
+    else if (face == Face::YMIN)
+      return static_cast<neigh_status_t>(face_ymin(conformal_status));
+    else if (face == Face::YMAX)
+      return static_cast<neigh_status_t>(face_ymax(conformal_status));
+    else if (face == Face::ZMIN)
+      return static_cast<neigh_status_t>(face_zmin(conformal_status));
+    else if (face == Face::ZMAX)
+      return static_cast<neigh_status_t>(face_zmax(conformal_status));
+
+    return conformal_neighbor_status::NEIGHBOR_IS_UNAVAILABLE;
+
+  } // get_status
 
   KOKKOS_INLINE_FUNCTION static bool
   is_face_neighbor_finer(Face::face_t const & face, status_t const & conformal_status)
@@ -182,7 +252,6 @@ template <size_t dim, typename device_t>
 using conformal_status_view_host_t =
   typename Kokkos::View<conformal_status_t<dim> *,
                         typename conformal_status_view_t<dim, device_t>::host_mirror_space>;
-
 
 } // namespace kalypsso
 
