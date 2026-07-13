@@ -47,7 +47,7 @@ get_block_sizes(ConfigMap const & config_map) -> block_size_t<dim>
  */
 template <size_t dim>
 auto
-get_flux_block_sizes(block_size_t<dim> block_sizes, int direction = IX) -> block_size_t<dim>
+get_flux_block_sizes(block_size_t<dim> block_sizes, int direction) -> block_size_t<dim>
 {
 
   // flux block size
